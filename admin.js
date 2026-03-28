@@ -2,18 +2,17 @@
   const session = JSON.parse(localStorage.getItem("angelic_session") || "null");
   if (!session || session.role !== "admin") window.location.href = "login.html";
 
-  const brand = window.Branding.get();
   const sidebar = document.getElementById("adminSidebar");
   const main = document.getElementById("adminMain");
   document.getElementById("logoutBtn").onclick = () => { window.AngelicAPI.logout(); window.location.href = "login.html"; };
 
   const state = { tab: "dashboard", data: null, selectedDefendantId: null, search: "", filters: { active: "all", bond: "all", missed: "all", court: "all" } };
 
-  const menu = [["dashboard", "Dashboard"], ["defendants", "Defendant List"], ["profile", "Case Profile"], ["reminders", "Reminder Center"], ["activity", "Activity Log"]];
+  const menu = [["dashboard", "Dashboard"], ["defendants", "Defendant List"], ["profile", "Defendant Profile"], ["reminders", "Reminder Management"], ["activity", "Notes & Activity"]];
   function fmt(d) { return new Date(d).toLocaleString(); }
 
   function renderSidebar() {
-    sidebar.innerHTML = `<p class="eyebrow">${brand.companyName}</p><h3>Case Operations</h3><p class="muted">Fast, discreet operations support across North Carolina.</p><div class="menu">${menu.map(([k,v])=>`<button class="btn ${state.tab===k?"btn-primary":"btn-outline"}" data-tab="${k}">${v}</button>`).join("")}</div><div class="help-strip"><strong>Contact</strong><p class="muted">${brand.supportPhone}<br/>${brand.supportEmail}</p></div>`;
+    sidebar.innerHTML = `<h3>Operations</h3><div class="menu">${menu.map(([k,v])=>`<button class="btn ${state.tab===k?"btn-primary":"btn-outline"}" data-tab="${k}">${v}</button>`).join("")}</div>`;
     sidebar.querySelectorAll("button").forEach((b)=>b.onclick=()=>{state.tab=b.dataset.tab; renderSidebar(); render();});
   }
 
@@ -46,34 +45,32 @@
       const pendingPayments = data.payments.filter((p)=>p.status !== "paid").length;
       const missed = data.defendants.filter((d)=>d.missed_check_in).length;
       main.innerHTML = `<section class="section-stack">
-        <article class="card"><p class="eyebrow">Operations overview</p><h2>Current case priorities</h2><div class="grid two">
-          <div class="metric"><p>Active defendants</p><p class="value">${active}</p></div>
-          <div class="metric"><p>Court dates (7 days)</p><p class="value">${upcoming}</p></div>
-          <div class="metric"><p>Pending payments</p><p class="value">${pendingPayments}</p></div>
-          <div class="metric"><p>Missed check-ins</p><p class="value">${missed}</p></div>
+        <article class="card"><h2>Operations Snapshot</h2><div class="grid two">
+          <div class="metric"><p>Active Defendants</p><p class="value">${active}</p></div>
+          <div class="metric"><p>Upcoming Court Dates (7d)</p><p class="value">${upcoming}</p></div>
+          <div class="metric"><p>Pending Payments</p><p class="value">${pendingPayments}</p></div>
+          <div class="metric"><p>Missed Check-Ins</p><p class="value">${missed}</p></div>
         </div></article>
-        <article class="card"><h3>Recent activity</h3><div class="list">${data.activity.slice(0,12).map((a)=>`<div class="item"><div class="kv"><strong>${a.text}</strong><span class="muted">${fmt(a.at)}</span></div></div>`).join("")}</div></article>
+        <article class="card"><h3>Recent Activity</h3><div class="list">${data.activity.slice(0,12).map((a)=>`<div class="item"><div class="kv"><strong>${a.text}</strong><span class="muted">${fmt(a.at)}</span></div></div>`).join("")}</div></article>
       </section>`;
       return;
     }
 
     if (state.tab === "defendants") {
       const rows = defendantRows();
-      main.innerHTML = `<section class="card"><h2>Defendant directory</h2><p class="muted">Search and filter quickly to coordinate case support.</p>
+      main.innerHTML = `<section class="card"><h2>Defendant Directory</h2>
       <div class="filters grid two">
       <input id="searchInput" placeholder="Search by name or email" value="${state.search}" />
-      <select id="activeFilter"><option value="all">All status</option><option value="true">Active</option><option value="false">Inactive</option></select>
-      <select id="bondFilter"><option value="all">All bond statuses</option><option value="active">Active bond</option><option value="closed">Closed bond</option></select>
-      <select id="missedFilter"><option value="all">All check-in flags</option><option value="true">Missed check-in</option><option value="false">No missed check-in</option></select>
-      <select id="courtFilter"><option value="all">All court windows</option><option value="upcoming">Court in 7 days</option></select>
+      <select id="activeFilter"><option value="all">All Statuses</option><option value="true">Active</option><option value="false">Inactive</option></select>
+      <select id="bondFilter"><option value="all">All Bonds</option><option value="active">Active Bond</option><option value="closed">Closed Bond</option></select>
+      <select id="missedFilter"><option value="all">All Check-In Flags</option><option value="true">Missed Check-In</option><option value="false">No Missed Check-In</option></select>
+      <select id="courtFilter"><option value="all">All Court Windows</option><option value="upcoming">Court in 7 Days</option></select>
       </div>
       <div style="overflow:auto;"><table class="table"><thead><tr><th>Name</th><th>Bond</th><th>Court</th><th>Missed</th><th>Active</th></tr></thead>
       <tbody>${rows.map((d)=>{
         const court = data.court_dates.find((c)=>c.defendant_id===d.id);
         return `<tr data-id="${d.id}"><td>${d.full_name}<br/><span class="muted">${d.email}</span></td><td>${d.bond_status}</td><td>${court?new Date(court.court_datetime).toLocaleDateString():"N/A"}</td><td>${d.missed_check_in?"Yes":"No"}</td><td>${d.active?"Yes":"No"}</td></tr>`;
-      }).join("")}</tbody></table></div>
-      ${rows.length ? "" : `<div class="help-strip">No defendants match these filters.</div>`}
-      </section>`;
+      }).join("")}</tbody></table></div></section>`;
       document.getElementById("searchInput").oninput = (e)=>{state.search=e.target.value; render();};
       document.getElementById("activeFilter").value = state.filters.active;
       document.getElementById("bondFilter").value = state.filters.bond;
@@ -97,45 +94,40 @@
       const reminders = data.reminders.filter((r)=>r.defendant_id===selected.id);
 
       main.innerHTML = `<section class="section-stack">
-      <article class="card"><p class="eyebrow">Case profile</p><h2>${selected.full_name}</h2><p class="muted">${selected.email} · ${selected.phone}</p>
+      <article class="card"><h2>${selected.full_name}</h2><p class="muted">${selected.email} · ${selected.phone}</p>
       <div class="grid two">
-        <div class="item"><strong>Bond status</strong><p>${selected.bond_status}</p></div>
-        <div class="item"><strong>Active case</strong><p>${selected.active ? "Yes" : "No"}</p></div>
+        <div class="item"><strong>Bond Status</strong><p>${selected.bond_status}</p></div>
+        <div class="item"><strong>Active Case</strong><p>${selected.active ? "Yes" : "No"}</p></div>
       </div></article>
-
-      <article class="card"><h3>Case updates</h3>
+      <article class="card"><h3>Edit Case Details</h3>
         <div class="grid two">
-          <label>Court date/time<input id="editCourtDate" type="datetime-local" value="${court ? new Date(court.court_datetime).toISOString().slice(0,16) : ""}" /></label>
-          <label>Court address<input id="editCourtAddress" value="${court?.court_address || ""}" /></label>
-          <label>Bond status<select id="editBondStatus"><option value="active">Active</option><option value="closed">Closed</option><option value="revoked">Revoked</option></select></label>
-          <label>Payment due date<input id="editPayDue" type="date" value="${payment?.due_date || ""}" /></label>
-          <label>Payment status<select id="editPayStatus"><option value="due">Due</option><option value="pending">Pending</option><option value="paid">Paid</option><option value="overdue">Overdue</option></select></label>
-          <label>Case active<select id="editCaseActive"><option value="true">Active</option><option value="false">Inactive</option></select></label>
-          <label>Missed check-in<select id="editMissed"><option value="false">No</option><option value="true">Yes</option></select></label>
-          <label>Capture location snapshot<button id="captureLocation" class="btn">Capture current location</button></label>
+          <label>Court Date/Time<input id="editCourtDate" type="datetime-local" value="${court ? new Date(court.court_datetime).toISOString().slice(0,16) : ""}" /></label>
+          <label>Court Address<input id="editCourtAddress" value="${court?.court_address || ""}" /></label>
+          <label>Bond Status<select id="editBondStatus"><option value="active">Active</option><option value="closed">Closed</option><option value="revoked">Revoked</option></select></label>
+          <label>Payment Due Date<input id="editPayDue" type="date" value="${payment?.due_date || ""}" /></label>
+          <label>Payment Status<select id="editPayStatus"><option value="due">Due</option><option value="pending">Pending</option><option value="paid">Paid</option><option value="overdue">Overdue</option></select></label>
+          <label>Case Active<select id="editCaseActive"><option value="true">Active</option><option value="false">Inactive</option></select></label>
+          <label>Missed Check-In<select id="editMissed"><option value="false">No</option><option value="true">Yes</option></select></label>
+          <label>Capture Location Snapshot<button id="captureLocation" class="btn">Capture Current Location</button></label>
         </div>
-        <button id="saveCaseBtn" class="btn btn-primary" style="margin-top:.7rem;">Save case updates</button>
+        <button id="saveCaseBtn" class="btn btn-primary" style="margin-top:.7rem;">Save Updates</button>
       </article>
-
-      <article class="card"><h3>Bond and contacts</h3>
-        <div class="kv"><span>Bond number</span><strong>${bond?.bond_number || "N/A"}</strong></div>
-        <div class="kv"><span>Bond amount</span><strong>$${bond?.bond_amount?.toLocaleString() || 0}</strong></div>
+      <article class="card"><h3>Bond & Contacts</h3>
+        <div class="kv"><span>Bond Number</span><strong>${bond?.bond_number || "N/A"}</strong></div>
+        <div class="kv"><span>Bond Amount</span><strong>$${bond?.bond_amount?.toLocaleString() || 0}</strong></div>
         <div class="kv"><span>Charges</span><strong>${bond?.charges || "N/A"}</strong></div>
         <div class="kv"><span>Indemnitor</span><strong>${bond?.indemnitor_name || "N/A"} · ${bond?.indemnitor_phone || "N/A"}</strong></div>
-        <div class="kv"><span>Emergency contact</span><strong>${selected.emergency_contact_name} · ${selected.emergency_contact_phone}</strong></div>
+        <div class="kv"><span>Emergency Contact</span><strong>${selected.emergency_contact_name} · ${selected.emergency_contact_phone}</strong></div>
       </article>
-
-      <article class="card"><h3>Check-in history</h3><div class="list">${checkins.map((c)=>`<div class="item"><div class="kv"><strong>${fmt(c.checked_in_at)}</strong><span>${c.latitude?`${c.latitude}, ${c.longitude}`:"Location unavailable"}</span></div></div>`).join("") || "No check-ins recorded."}</div></article>
-      <article class="card"><h3>Location log</h3><div class="list">${locs.map((l)=>`<div class="item"><div class="kv"><strong>${fmt(l.captured_at)}</strong><span>${l.latitude ?? "N/A"}, ${l.longitude ?? "N/A"}</span></div><p class="muted">${l.source}</p></div>`).join("") || "No location captures recorded."}</div></article>
-
-      <article class="card"><h3>Internal notes</h3>
-        <textarea id="noteBody" placeholder="Add confidential case note"></textarea>
-        <button id="addNoteBtn" class="btn" style="margin-top:.6rem;">Add note</button>
+      <article class="card"><h3>Check-Ins</h3><div class="list">${checkins.map((c)=>`<div class="item"><div class="kv"><strong>${fmt(c.checked_in_at)}</strong><span>${c.latitude?`${c.latitude}, ${c.longitude}`:"Location unavailable"}</span></div></div>`).join("") || "No check-ins recorded."}</div></article>
+      <article class="card"><h3>Location Log</h3><div class="list">${locs.map((l)=>`<div class="item"><div class="kv"><strong>${fmt(l.captured_at)}</strong><span>${l.latitude ?? "N/A"}, ${l.longitude ?? "N/A"}</span></div><p class="muted">${l.source}</p></div>`).join("") || "No location captures recorded."}</div></article>
+      <article class="card"><h3>Internal Notes</h3>
+        <textarea id="noteBody" placeholder="Enter case note"></textarea>
+        <button id="addNoteBtn" class="btn" style="margin-top:.6rem;">Add Note</button>
         <div class="list" style="margin-top:.7rem;">${notes.map((n)=>`<div class="item"><p>${n.body}</p><p class="muted">${n.author_name} · ${fmt(n.created_at)}</p></div>`).join("")}</div>
       </article>
-
-      <article class="card"><h3>Reminder status</h3>
-        <div class="list">${reminders.map((r)=>`<div class="item"><div class="kv"><strong>${r.title}</strong><span>${r.status}</span></div><p>${r.message}</p><button class="btn toggle-reminder" data-id="${r.id}">${r.acknowledged ? "Mark unacknowledged" : "Mark acknowledged"}</button><button class="btn toggle-sent" data-id="${r.id}">${r.status === "sent" ? "Mark pending" : "Mark sent"}</button></div>`).join("")}</div>
+      <article class="card"><h3>Reminder Management</h3>
+        <div class="list">${reminders.map((r)=>`<div class="item"><div class="kv"><strong>${r.title}</strong><span>${r.status}</span></div><p>${r.message}</p><button class="btn toggle-reminder" data-id="${r.id}">${r.acknowledged ? "Mark Unacknowledged" : "Mark Acknowledged"}</button><button class="btn toggle-sent" data-id="${r.id}">${r.status === "sent" ? "Mark Pending" : "Mark Sent"}</button></div>`).join("")}</div>
       </article>
       </section>`;
 
@@ -200,11 +192,11 @@
     if (state.tab === "reminders") {
       const target = data.defendants.find((d)=>d.id===state.selectedDefendantId) || data.defendants[0];
       const list = data.reminders.filter((r)=>r.defendant_id===target.id);
-      main.innerHTML = `<section class="card"><h2>Reminder center</h2><p class="muted">Create and track communication touchpoints clearly.</p>
+      main.innerHTML = `<section class="card"><h2>Reminder Management</h2>
       <label>Defendant<select id="remDef">${data.defendants.map((d)=>`<option value="${d.id}">${d.full_name}</option>`).join("")}</select></label>
       <div class="grid two" style="margin-top:.5rem;"><input id="remTitle" placeholder="Reminder title" /><input id="remType" placeholder="Type (court, payment, check-in)" /></div>
       <textarea id="remMessage" placeholder="Reminder message"></textarea>
-      <button id="createReminder" class="btn btn-primary" style="margin-top:.6rem;">Create reminder</button>
+      <button id="createReminder" class="btn btn-primary" style="margin-top:.6rem;">Create Reminder</button>
       <div class="list" style="margin-top:.7rem;">${list.map((r)=>`<div class="item"><div class="kv"><strong>${r.title}</strong><span>${r.status}</span></div><p>${r.message}</p><p class="muted">${fmt(r.scheduled_for)} · ${r.acknowledged?"Acknowledged":"Unacknowledged"}</p></div>`).join("")}</div></section>`;
       document.getElementById("remDef").value = target.id;
       document.getElementById("remDef").onchange=(e)=>{state.selectedDefendantId=e.target.value; render();};
@@ -224,7 +216,7 @@
     }
 
     if (state.tab === "activity") {
-      main.innerHTML = `<section class="card"><h2>Activity log</h2><p class="muted">Recent system and staff updates for accountability.</p><div class="list">${data.activity.map((a)=>`<div class="item"><div class="kv"><strong>${a.text}</strong><span class="muted">${fmt(a.at)}</span></div></div>`).join("")}</div></section>`;
+      main.innerHTML = `<section class="card"><h2>Audit Activity Feed</h2><div class="list">${data.activity.map((a)=>`<div class="item"><div class="kv"><strong>${a.text}</strong><span class="muted">${fmt(a.at)}</span></div></div>`).join("")}</div></section>`;
     }
   }
 

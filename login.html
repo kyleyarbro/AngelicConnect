@@ -7,37 +7,19 @@
     <link rel="stylesheet" href="styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
-    <script src="brand.js"></script>
     <script src="supabase.js"></script>
     <script defer src="app.js"></script>
   </head>
   <body class="auth-body">
     <main class="auth-shell">
       <section class="auth-brand card">
-        <div class="brand-pill">
-          <span class="brand-mark" data-brand="logoText">AB</span>
-          <div>
-            <p class="eyebrow" data-brand="companyName"></p>
-            <h1 data-brand="productName"></h1>
-          </div>
-        </div>
-        <p class="muted" data-brand="tagline"></p>
-        <p class="support-copy">Need help fast? We are here 24/7 with respectful, judgment-free support.</p>
-        <div class="list">
-          <div class="item compact">
-            <strong>Statewide support</strong>
-            <p class="muted" data-brand="statewideText"></p>
-          </div>
-          <div class="item compact">
-            <strong>Stay on track</strong>
-            <p class="muted">Check in, review reminders, and reach your team quickly when timing matters.</p>
-          </div>
-        </div>
+        <p class="eyebrow">Angelic Bail Bonds</p>
+        <h1>Angelic Connect</h1>
+        <p class="muted">Secure case management for defendants and staff operations.</p>
       </section>
 
       <section class="auth-form card">
-        <h2>Secure Sign In</h2>
-        <p class="muted">Choose your account type to continue.</p>
+        <h2>Sign In</h2>
         <form id="loginForm">
           <label for="role">Account Type</label>
           <select id="role" name="role" required>
@@ -51,7 +33,7 @@
           <label for="password">Password</label>
           <input id="password" name="password" type="password" autocomplete="current-password" required />
 
-          <button class="btn btn-primary" type="submit">Continue</button>
+          <button class="btn btn-primary" type="submit">Access Account</button>
         </form>
         <p class="status" id="loginStatus" aria-live="polite"></p>
         <div class="auth-help muted">
@@ -60,9 +42,5 @@
         </div>
       </section>
     </main>
-    <footer class="brand-footer">
-      <p data-brand="supportLine"></p>
-      <p><span data-brand="companyName"></span> · <span data-brand="supportPhone"></span></p>
-    </footer>
   </body>
 </html>
