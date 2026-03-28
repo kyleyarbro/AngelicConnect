@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Angelic Connect | Secure Access</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="brand.js"></script>
+    <script src="supabase.js"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body class="auth-body">
+    <main class="auth-shell">
+      <section class="auth-brand card">
+        <div class="brand-pill">
+          <span class="brand-mark">AB</span>
+          <div>
+            <p class="eyebrow" data-brand="companyName"></p>
+            <h1 data-brand="productName"></h1>
+          </div>
+        </div>
+        <p class="muted" data-brand="tagline"></p>
+        <p class="support-copy">Need help fast? We are here 24/7 with discreet, judgment-free support.</p>
+        <div class="list">
+          <div class="item compact">
+            <strong>Statewide care</strong>
+            <p class="muted" data-brand="statewideText"></p>
+          </div>
+          <div class="item compact">
+            <strong>Stay on track</strong>
+            <p class="muted">Secure check-ins, reminders, and direct access to your bail team.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="auth-form card">
+        <h2>Secure Sign In</h2>
+        <p class="muted">Choose your account type and continue.</p>
+        <form id="loginForm">
+          <label for="role">Account Type</label>
+          <select id="role" name="role" required>
+            <option value="defendant">Defendant</option>
+            <option value="admin">Staff / Admin</option>
+          </select>
+
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required />
+
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required />
+
+          <button class="btn btn-primary" type="submit">Continue to Account</button>
+        </form>
+        <p class="status" id="loginStatus" aria-live="polite"></p>
+        <div class="auth-help muted">
+          <p><strong>Defendant sample:</strong> defendant@angelicbailbonds.com / Defendant@123</p>
+          <p><strong>Admin sample:</strong> admin@angelicbailbonds.com / Admin@123</p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
