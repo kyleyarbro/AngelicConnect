@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Angelic Connect | Secure Access</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="supabase.js"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body class="auth-body">
+    <main class="auth-shell">
+      <section class="auth-brand card">
+        <p class="eyebrow">Angelic Bail Bonds</p>
+        <h1>Angelic Connect</h1>
+        <p class="muted">Secure case management for defendants and staff operations.</p>
+      </section>
+
+      <section class="auth-form card">
+        <h2>Sign In</h2>
+        <form id="loginForm">
+          <label for="role">Account Type</label>
+          <select id="role" name="role" required>
+            <option value="defendant">Defendant</option>
+            <option value="admin">Staff / Admin</option>
+          </select>
+
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required />
+
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required />
+
+          <button class="btn btn-primary" type="submit">Access Account</button>
+        </form>
+        <p class="status" id="loginStatus" aria-live="polite"></p>
+        <div class="auth-help muted">
+          <p><strong>Defendant sample:</strong> defendant@angelicbailbonds.com / Defendant@123</p>
+          <p><strong>Admin sample:</strong> admin@angelicbailbonds.com / Admin@123</p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
