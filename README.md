@@ -89,6 +89,8 @@ You can rebrand without rewriting components by changing:
 - `tagline`
 - `statewideText`
 - `reassuranceText`
+- `supportLine`
+- `logoText`
 - `theme.primary`
 - `theme.secondary`
 - `theme.accent`

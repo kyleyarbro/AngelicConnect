@@ -13,7 +13,7 @@
   function fmt(d) { return new Date(d).toLocaleString(); }
 
   function renderSidebar() {
-    sidebar.innerHTML = `<p class="eyebrow">${brand.companyName}</p><h3>Case Operations</h3><p class="muted">Fast, discreet, statewide support workflow.</p><div class="menu">${menu.map(([k,v])=>`<button class="btn ${state.tab===k?"btn-primary":"btn-outline"}" data-tab="${k}">${v}</button>`).join("")}</div><div class="help-strip"><strong>Contact</strong><p class="muted">${brand.supportPhone}<br/>${brand.supportEmail}</p></div>`;
+    sidebar.innerHTML = `<p class="eyebrow">${brand.companyName}</p><h3>Case Operations</h3><p class="muted">Fast, discreet operations support across North Carolina.</p><div class="menu">${menu.map(([k,v])=>`<button class="btn ${state.tab===k?"btn-primary":"btn-outline"}" data-tab="${k}">${v}</button>`).join("")}</div><div class="help-strip"><strong>Contact</strong><p class="muted">${brand.supportPhone}<br/>${brand.supportEmail}</p></div>`;
     sidebar.querySelectorAll("button").forEach((b)=>b.onclick=()=>{state.tab=b.dataset.tab; renderSidebar(); render();});
   }
 
@@ -46,7 +46,7 @@
       const pendingPayments = data.payments.filter((p)=>p.status !== "paid").length;
       const missed = data.defendants.filter((d)=>d.missed_check_in).length;
       main.innerHTML = `<section class="section-stack">
-        <article class="card"><p class="eyebrow">Operations overview</p><h2>Today's case priorities</h2><div class="grid two">
+        <article class="card"><p class="eyebrow">Operations overview</p><h2>Current case priorities</h2><div class="grid two">
           <div class="metric"><p>Active defendants</p><p class="value">${active}</p></div>
           <div class="metric"><p>Court dates (7 days)</p><p class="value">${upcoming}</p></div>
           <div class="metric"><p>Pending payments</p><p class="value">${pendingPayments}</p></div>
@@ -59,7 +59,7 @@
 
     if (state.tab === "defendants") {
       const rows = defendantRows();
-      main.innerHTML = `<section class="card"><h2>Defendant directory</h2><p class="muted">Search and filter quickly to manage urgent case needs.</p>
+      main.innerHTML = `<section class="card"><h2>Defendant directory</h2><p class="muted">Search and filter quickly to coordinate case support.</p>
       <div class="filters grid two">
       <input id="searchInput" placeholder="Search by name or email" value="${state.search}" />
       <select id="activeFilter"><option value="all">All status</option><option value="true">Active</option><option value="false">Inactive</option></select>
@@ -200,7 +200,7 @@
     if (state.tab === "reminders") {
       const target = data.defendants.find((d)=>d.id===state.selectedDefendantId) || data.defendants[0];
       const list = data.reminders.filter((r)=>r.defendant_id===target.id);
-      main.innerHTML = `<section class="card"><h2>Reminder center</h2><p class="muted">Create and track communication touchpoints quickly.</p>
+      main.innerHTML = `<section class="card"><h2>Reminder center</h2><p class="muted">Create and track communication touchpoints clearly.</p>
       <label>Defendant<select id="remDef">${data.defendants.map((d)=>`<option value="${d.id}">${d.full_name}</option>`).join("")}</select></label>
       <div class="grid two" style="margin-top:.5rem;"><input id="remTitle" placeholder="Reminder title" /><input id="remType" placeholder="Type (court, payment, check-in)" /></div>
       <textarea id="remMessage" placeholder="Reminder message"></textarea>

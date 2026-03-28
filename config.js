@@ -15,6 +15,8 @@ window.APP_CONFIG = {
     officeHours: "Mon-Sun · 24/7 response",
     statewideText: "Serving communities across North Carolina.",
     reassuranceText: "You are not alone in this process. We are here to help you stay on track.",
+    supportLine: "Fast, discreet support whenever you need us.",
+    logoText: "AB",
     theme: {
       primary: "#15304b",
       secondary: "#223d5a",

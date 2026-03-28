@@ -49,7 +49,7 @@
       data.location_logs.push({ id: `loc-${Date.now()}`, defendant_id: state.defendant.id, check_in_id: entry.id, captured_at: now, latitude: entry.latitude, longitude: entry.longitude, source: "check_in" });
       data.activity.unshift({ at: now, text: `${state.defendant.full_name} check-in completed from defendant portal.` });
       window.AngelicAPI.saveData(data);
-      info.textContent = `Check-in confirmed at ${fmtDate(now)}. You're on track.`;
+      info.textContent = `Check-in confirmed at ${fmtDate(now)}. Thank you for staying on track.`;
       render();
     };
 
@@ -87,7 +87,7 @@
           </div>
           <div class="help-strip">
             <strong>Need help fast?</strong>
-            <p class="muted">Need to reach your bail agent? Call us anytime. We're here 24/7.</p>
+            <p class="muted">Need to reach your bail team? We respond quickly, day or night.</p>
           </div>
         </article>
 
@@ -101,7 +101,7 @@
         <article class="card grid three">
           <button class="btn btn-primary" data-go="checkin">Check in now</button>
           <button class="btn" data-go="payments">View payment reminder</button>
-          <button class="btn" data-go="contact">Need to reach your bail agent?</button>
+          <button class="btn" data-go="contact">Need to reach your bail team?</button>
         </article>
       </section>`;
       main.querySelectorAll("button[data-go]").forEach((b)=>b.onclick=()=>{state.active=b.dataset.go; render(); renderNav();});
@@ -135,7 +135,7 @@
     if (state.active === "payments") {
       main.innerHTML = `<section class="section-stack"><article class="card"><h2>Payment status</h2>
       ${nextPay ? `<div class="kv"><span>Amount due</span><strong>$${nextPay.amount_due.toLocaleString()}</strong></div><div class="kv"><span>Due date</span><strong>${new Date(nextPay.due_date).toLocaleDateString()}</strong></div><div class="kv"><span>Status</span><strong>${badge(nextPay.status)}</strong></div>` : ""}
-      <p class="muted">If you need help with payment arrangements, contact your bail agent right away.</p>
+      <p class="muted">If payment support is needed, contact your bail agent as soon as possible.</p>
       <button class="btn btn-primary" style="width:100%;margin-top:.6rem;">Pay now</button></article>
       <article class="card"><h3>Payment history</h3><div class="list">${payments.map((p)=>`<div class="item"><div class="kv"><strong>$${p.amount_due.toLocaleString()}</strong>${badge(p.status)}</div><p class="muted">Due ${new Date(p.due_date).toLocaleDateString()}${p.paid_at ? ` · Paid ${fmtDate(p.paid_at)}` : ""}</p></div>`).join("")}</div></article></section>`;
       return;
@@ -144,7 +144,7 @@
     if (state.active === "reminders") {
       const missed = d.missed_check_in;
       main.innerHTML = `<section class="section-stack"><article class="card"><h2>Reminders</h2>
-      <p class="muted">Clear reminders to help you stay on schedule.</p>
+      <p class="muted">Clear reminders to help you stay on track and prepared.</p>
       <div class="list">
       ${missed ? `<div class="item"><div class="kv"><strong>Missed check-in notice</strong>${badge("attention")}</div><p class="muted">Please contact your bail agent now so we can help resolve this quickly.</p></div>` : ""}
       ${reminders.map((r)=>`<div class="item"><div class="kv"><strong>${r.title}</strong>${badge(r.status)}</div><p>${r.message}</p><p class="muted">Scheduled ${fmtDate(r.scheduled_for)}</p></div>`).join("")}
@@ -153,7 +153,7 @@
     }
 
     if (state.active === "contact") {
-      main.innerHTML = `<section class="section-stack"><article class="card"><h2>Need to reach your bail agent?</h2>
+      main.innerHTML = `<section class="section-stack"><article class="card"><h2>Need to reach your bail team?</h2>
       <p class="muted" data-brand="reassuranceText">${brand.reassuranceText}</p>
       <div class="notice"><strong>Primary office hours:</strong> <span data-brand="officeHours">${brand.officeHours}</span></div>
       <p class="muted" style="margin-top:.6rem;" data-brand="officeAddress">${brand.officeAddress}</p>
