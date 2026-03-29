@@ -39,6 +39,9 @@ function saveState(state) {
 function validateCheckIn(payload) {
   if (!payload?.defendantId) throw new Error("A valid defendant is required to complete check-in.");
   if (!payload?.selfieDataUrl || !payload?.selfieName) throw new Error(agency.checkInRules.validationMessage);
+  if (payload?.captureMethod !== "live_camera" || !payload?.capturedAt || !payload?.checkInSessionId) {
+    throw new Error(agency.checkInRules.validationMessage);
+  }
 }
 
 function filterAgencyRows(rows) {

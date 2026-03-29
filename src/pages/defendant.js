@@ -19,7 +19,15 @@ const state = {
   checkInFeedback: { message: "", isError: false },
   cameraStream: null,
   cameraReady: false,
-  checkInDraft: { selfieDataUrl: "", selfieName: "", capturedAt: null }
+  checkInDraft: {
+    selfieDataUrl: "",
+    selfieName: "",
+    capturedAt: null,
+    captureMethod: "",
+    checkInSessionId: null
+  },
+  checkInSessionId: null,
+  checkInSessionStartedAt: null
 };
 
 const app = document.getElementById("app");
@@ -105,9 +113,21 @@ function updateSelfiePreview() {
 }
 
 function resetCheckInDraft() {
-  state.checkInDraft = { selfieDataUrl: "", selfieName: "", capturedAt: null };
+  state.checkInDraft = {
+    selfieDataUrl: "",
+    selfieName: "",
+    capturedAt: null,
+    captureMethod: "",
+    checkInSessionId: null
+  };
   state.cameraReady = false;
   updateSelfiePreview();
+}
+
+function beginCheckInSession() {
+  state.checkInSessionStartedAt = Date.now();
+  state.checkInSessionId = `checkin-session-${state.checkInSessionStartedAt}`;
+  resetCheckInDraft();
 }
 
 async function startCamera(autoStarted = false) {
@@ -171,7 +191,9 @@ function captureSelfie() {
   state.checkInDraft = {
     selfieDataUrl: canvas.toDataURL("image/jpeg", 0.92),
     selfieName: `live-selfie-${capturedAt}.jpg`,
-    capturedAt
+    capturedAt,
+    captureMethod: "live_camera",
+    checkInSessionId: state.checkInSessionId
   };
   updateSelfiePreview();
   stopCamera();
@@ -184,7 +206,17 @@ async function handleCheckIn() {
   const form = document.getElementById("checkInForm");
   const submitBtn = document.getElementById("checkInBtn");
 
-  if (!state.checkInDraft.selfieDataUrl || !state.checkInDraft.capturedAt) {
+  const hasSessionBoundCapture = Boolean(
+    state.checkInDraft.selfieDataUrl &&
+    state.checkInDraft.capturedAt &&
+    state.checkInDraft.captureMethod === "live_camera" &&
+    state.checkInDraft.checkInSessionId &&
+    state.checkInDraft.checkInSessionId === state.checkInSessionId &&
+    state.checkInSessionStartedAt &&
+    state.checkInDraft.capturedAt >= state.checkInSessionStartedAt
+  );
+
+  if (!hasSessionBoundCapture) {
     setCheckInStatus(agency.checkInRules.validationMessage, true);
     return;
   }
@@ -219,7 +251,10 @@ async function handleCheckIn() {
       latitude,
       longitude,
       selfieName: state.checkInDraft.selfieName,
-      selfieDataUrl: state.checkInDraft.selfieDataUrl
+      selfieDataUrl: state.checkInDraft.selfieDataUrl,
+      captureMethod: state.checkInDraft.captureMethod,
+      capturedAt: state.checkInDraft.capturedAt,
+      checkInSessionId: state.checkInDraft.checkInSessionId
     });
 
     state.data.check_ins.unshift(result.entry);
@@ -294,6 +329,7 @@ function render() {
   }
 
   if (state.active === "checkin") {
+    if (!state.checkInSessionId) beginCheckInSession();
     main.innerHTML = `<section class="section-stack"><article class="card">
       <h2>Stay on track with your check-in</h2><p class="muted">Use your front camera to take a live selfie, then submit your required check-in. We record the time automatically.</p>
       <form id="checkInForm" class="section-stack" novalidate>
@@ -338,6 +374,12 @@ function render() {
     }
     document.getElementById("retakeSelfieBtn").hidden = !state.checkInDraft.selfieDataUrl;
     return;
+  }
+
+  if (state.checkInSessionId) {
+    state.checkInSessionId = null;
+    state.checkInSessionStartedAt = null;
+    resetCheckInDraft();
   }
 
   if (state.active === "court") {
