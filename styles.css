@@ -190,19 +190,6 @@ label { font-size: .9rem; color: color-mix(in srgb, var(--brand-muted) 86%, whit
   border-color: color-mix(in srgb, var(--brand-accent) 60%, var(--brand-border) 40%);
 }
 
-.kpi-card p {
-  color: color-mix(in srgb, var(--brand-text) 88%, white 12%);
-  font-weight: 600;
-}
-.kpi-card .value {
-  color: color-mix(in srgb, var(--brand-accent) 60%, #fff 40%);
-  text-shadow: 0 1px 0 rgba(0,0,0,.35);
-}
-.kpi-card:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--brand-accent) 65%, white 35%);
-  outline-offset: 2px;
-}
-
 .toolbar-row {
   display:flex;
   align-items:flex-start;
