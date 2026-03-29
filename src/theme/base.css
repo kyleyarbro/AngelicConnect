@@ -85,23 +85,24 @@ a {
   width: 54px;
   height: 54px;
   border-radius: 16px;
-  display: grid;
-  place-items: center;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(246, 235, 219, 0.95)),
-    url("./assets/icons/angelic-app-icon.svg") center / cover no-repeat;
+  display: block;
+  object-fit: cover;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(246, 235, 219, 0.95));
   border: 1px solid rgba(184, 132, 75, 0.34);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.65),
     0 10px 24px rgba(110, 84, 51, 0.16);
-  color: transparent;
-  font-size: 0;
 }
 
 .brand-mark.small {
   width: 42px;
   height: 42px;
   border-radius: 14px;
+}
+
+.brand-wordmark {
+  max-width: min(260px, 100%);
+  display: block;
 }
 
 .btn {

@@ -1,157 +1,151 @@
-# Angelic Connect
+# White-Label Bail Agency Platform
 
-Angelic Connect is a mobile-first operational platform for Angelic Bail Bonds with separate experiences for defendants and staff/admin users.
+This repo is now a white-label, config-driven bail agency platform built on Vite + vanilla JavaScript. One shared codebase can serve multiple branded agencies by selecting an agency slug and preparing that agency's manifest, icons, and theme tokens before deployment.
 
-## File Tree
+## Stack
 
-- `index.html`
-- `login.html`
-- `defendant.html`
-- `admin.html`
-- `styles.css`
-- `brand.js`
-- `app.js`
-- `defendant.js`
-- `admin.js`
-- `supabase.js`
-- `config.example.js`
-- `config.js`
-- `site.webmanifest`
-- `assets/icons/angelic-app-icon.svg`
-- `schema.sql`
-- `README.md`
+- Vite multi-page app
+- Vanilla JavaScript modules
+- Shared CSS token system
+- Optional Supabase client integration
+- Static PWA manifest generation
 
-## Local Run (Static Server)
+## Project Structure
 
-From project root:
+```text
+/src
+  /assets/branding/{agency}/
+  /config/agencies/
+  /theme/
+  /types/
+  /lib/
+  /components/
+  /pages/
+
+/public
+  /icons/agencies/{agency}/
+  /icons/current/
+  manifest.json
+
+/scripts
+  generate-manifest.mjs
+  validate-agency-config.mjs
+  prepare-branding.mjs
+
+/supabase
+  /migrations
+  /policies
+```
+
+## Supported Agencies
+
+- `angelic`
+- `shadowpoint`
+- `template`
+
+## Environment Variables
+
+Copy `.env.example` to `.env` and set values for your local agency target.
 
 ```bash
-cp config.example.js config.js
-python3 -m http.server 8080
+VITE_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
+VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+VITE_AGENCY_SLUG=angelic
+VITE_APP_ENV=local
+VITE_SUPPORT_EMAIL=support@example.com
 ```
 
-Open:
+## Local Run
 
-- `http://localhost:8080/login.html`
+1. Install dependencies:
 
-## Sample Login Credentials
-
-### Defendant
-- Email: `defendant@angelicbailbonds.com`
-- Password: `Defendant@123`
-
-### Staff/Admin
-- Email: `admin@angelicbailbonds.com`
-- Password: `Admin@123`
-
-## Supabase Setup
-
-1. Create a new Supabase project.
-2. In Supabase SQL Editor, run `schema.sql`.
-3. Copy project URL and anon key.
-4. Edit `config.js`:
-
-```js
-window.APP_CONFIG = {
-  supabaseUrl: "https://YOUR_PROJECT_ID.supabase.co",
-  supabaseAnonKey: "YOUR_SUPABASE_ANON_KEY",
-  useSupabaseAuth: true,
-  useSupabaseData: true,
-  brand: {
-    companyName: "Angelic Bail Bonds",
-    productName: "Angelic Connect",
-    supportPhone: "(910) 594-4449",
-    supportEmail: "support@angelicbailbonds.com",
-    theme: {
-      primary: "#15304b",
-      accent: "#c79a56",
-      background: "#0f1621"
-    }
-  }
-};
+```bash
+npm install
 ```
 
-5. Ensure your Auth users exist in Supabase Auth and corresponding rows are present in `users` with matching role and `defendant_id` (for defendant accounts).
-6. Keep `useSupabaseAuth` and `useSupabaseData` as `false` to run with built-in local seeded data.
+2. Pick an agency:
 
-## Branding / Theme System
+```bash
+set VITE_AGENCY_SLUG=angelic
+```
 
-Branding is centralized in `APP_CONFIG.brand` and applied by `brand.js`.
+3. Prepare branding assets and manifest for that agency:
 
-You can rebrand without rewriting components by changing:
+```bash
+npm run prepare:branding
+```
 
-- `companyName`
-- `productName`
-- `supportPhone`
-- `supportSms`
-- `emergencyPhone`
-- `supportEmail`
-- `officeAddress`
-- `officeHours`
-- `tagline`
-- `statewideText`
-- `reassuranceText`
-- `supportLine`
-- `logoText`
-- `theme.primary`
-- `theme.secondary`
-- `theme.accent`
-- `theme.background`
-- `theme.surface`
-- `theme.surfaceAlt`
-- `theme.border`
-- `theme.text`
-- `theme.muted`
-- `theme.success`
-- `theme.warning`
-- `theme.error`
+4. Start Vite:
 
-## Data Model and Relationships
+```bash
+npm run dev
+```
 
-Tables included in `schema.sql`:
+5. Open:
 
-- `users`
-- `defendants`
-- `bonds`
-- `court_dates`
-- `payments`
-- `check_ins`
-- `location_logs`
-- `reminders`
-- `notes`
+- `http://localhost:5173/login.html`
 
-Key relationships:
+## Adding A New Agency
 
-- `users.defendant_id` -> `defendants.id`
-- `defendants.user_id` -> `users.id`
-- `bonds.defendant_id` -> `defendants.id`
-- `court_dates.defendant_id` -> `defendants.id`
-- `payments.defendant_id` -> `defendants.id`
-- `check_ins.defendant_id` -> `defendants.id`
-- `location_logs.defendant_id` -> `defendants.id`
-- `location_logs.check_in_id` -> `check_ins.id`
-- `reminders.defendant_id` -> `defendants.id`
-- `notes.defendant_id` -> `defendants.id`
+1. Copy [template.js](/c:/Users/Kyarb/AngelicConnect/src/config/agencies/template.js) to a new config in `src/config/agencies/`.
+2. Add branding source files to `src/assets/branding/{agency}/`.
+3. Add public icon files to `public/icons/agencies/{agency}/`.
+4. Register the new config in [index.js](/c:/Users/Kyarb/AngelicConnect/src/config/agencies/index.js).
+5. Run:
 
-## Testing Workflow
+```bash
+npm run validate:agencies
+npm run prepare:branding
+```
 
-### Defendant Side
-1. Sign in as defendant.
-2. Verify dashboard priorities: next court date, check-in, payment due, quick contact.
-3. Open Check-In, allow camera access, take a live selfie, and tap **Check in now**.
-4. Confirm check-in is blocked until a live selfie is captured, then confirm check-in history updates and location is recorded or gracefully marked unavailable.
-5. Review Court, Payments, Reminders, Contact, and Profile sections.
+## Agency Config System
 
-### Admin Side
-1. Sign in as admin.
-2. Verify operations dashboard metrics and recent activity.
-3. Open Defendant List and use search/filters.
-4. Open defendant details from the Defendant List and update court date, address, bond status, payment fields, active/inactive, missed check-in flag.
-5. Add internal note and capture location snapshot from admin view.
-6. Open Reminder Center to create and track reminders.
+Each agency config covers:
 
-## Switching Local Seed Data to Supabase Data
+- agency id and slug
+- app name, short name, company name
+- contact info
+- branding asset directory and icon directory
+- theme colors
+- feature flags
+- check-in rules
+- legal disclaimer
+- manifest colors and description
 
-- `supabase.js` contains a complete local seeded dataset for immediate local use.
-- Once your Supabase tables contain live records, set `useSupabaseData: true` in `config.js`.
-- Once Supabase Auth is configured, set `useSupabaseAuth: true` and use real credentials.
+Shared runtime loading is handled in [agency.js](/c:/Users/Kyarb/AngelicConnect/src/lib/agency.js). Theme tokens are built in [buildTheme.js](/c:/Users/Kyarb/AngelicConnect/src/theme/buildTheme.js) and applied in [applyTheme.js](/c:/Users/Kyarb/AngelicConnect/src/theme/applyTheme.js).
+
+## Manifest / Icon Workflow
+
+- [validate-agency-config.mjs](/c:/Users/Kyarb/AngelicConnect/scripts/validate-agency-config.mjs): validates all agency configs
+- [generate-manifest.mjs](/c:/Users/Kyarb/AngelicConnect/scripts/generate-manifest.mjs): writes `public/manifest.json` for the selected agency
+- [prepare-branding.mjs](/c:/Users/Kyarb/AngelicConnect/scripts/prepare-branding.mjs): copies selected agency icons into `public/icons/current/` and regenerates the manifest
+
+Use `npm run prepare:branding` before `npm run dev` or `npm run build` for the agency you want to ship.
+
+## Deployment Notes
+
+To deploy a branded version:
+
+1. Set `VITE_AGENCY_SLUG`
+2. Set `VITE_SUPPORT_EMAIL`
+3. Run `npm run prepare:branding`
+4. Run `npm run build`
+5. Deploy the built output
+
+Each deployment should use one agency slug at a time so the generated `manifest.json` and `public/icons/current/` match the chosen brand.
+
+## Supabase Multi-Agency Readiness
+
+Current status:
+
+- Frontend seed data is agency-aware
+- Agency selection is environment-driven
+- Supabase integration remains optional
+- Query-level agency filtering is scaffolded behind a feature flag and disabled by default to avoid breaking older schemas
+
+Scaffolding added:
+
+- [20260329_multi_agency_scaffold.sql](/c:/Users/Kyarb/AngelicConnect/supabase/migrations/20260329_multi_agency_scaffold.sql)
+- [agency_rls.sql](/c:/Users/Kyarb/AngelicConnect/supabase/policies/agency_rls.sql)
+
+These files prepare `agency_id` columns and policy direction, but production-grade agency isolation still needs real auth claims and completed RLS wiring.

@@ -1,42 +1,23 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Angelic Connect | Defendant Portal</title>
+    <title>White-Label Bail Platform | Defendant Portal</title>
     <meta name="theme-color" content="#fcf8f2" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="Angelic" />
+    <meta name="apple-mobile-web-app-title" content="Bail Platform" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="manifest" href="site.webmanifest" />
-    <link rel="icon" type="image/svg+xml" href="assets/icons/angelic-app-icon.svg" />
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16.png" />
-    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
-    <link rel="stylesheet" href="styles.css" />
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="config.js"></script>
-    <script src="brand.js"></script>
-    <script src="supabase.js"></script>
-    <script defer src="defendant.js"></script>
+    <link rel="stylesheet" href="/src/theme/base.css" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="/icons/current/app-icon.svg" />
+    <link rel="apple-touch-icon" href="/icons/current/app-icon.svg" />
   </head>
   <body class="app-body">
-    <header class="topbar">
-      <div class="brand-pair">
-        <span class="brand-mark small" data-brand="logoText">AB</span>
-        <div>
-          <p class="eyebrow" data-brand="companyName"></p>
-          <h1>Defendant Portal</h1>
-        </div>
-      </div>
-      <button id="logoutBtn" class="btn btn-outline">Logout</button>
-    </header>
-
-    <main id="defendantMain" class="main-content"></main>
-
-    <nav class="bottom-nav" id="defNav"></nav>
+    <div id="app"></div>
+    <script type="module" src="/src/pages/defendant.js"></script>
   </body>
 </html>

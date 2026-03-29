@@ -1,0 +1,19 @@
+{
+  "name": "white-label-bail-platform",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "validate:agencies": "node ./scripts/validate-agency-config.mjs",
+    "generate:manifest": "node ./scripts/generate-manifest.mjs",
+    "prepare:branding": "node ./scripts/prepare-branding.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.8"
+  },
+  "devDependencies": {
+    "vite": "^7.1.2"
+  }
+}

@@ -1,0 +1,11 @@
+<svg width="420" height="96" viewBox="0 0 420 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="420" height="96" rx="24" fill="#FFFDF9"/>
+  <path d="M31 49C25 42 19 39 14 40C18 33 24 30 32 31C38 32 44 35 50 40C45 41 37 44 31 49Z" fill="#D4B38A"/>
+  <path d="M75 49C81 42 87 39 92 40C88 33 82 30 74 31C68 32 62 35 56 40C61 41 69 44 75 49Z" fill="#D4B38A"/>
+  <circle cx="53" cy="24" r="10" stroke="#B8844B" stroke-width="4"/>
+  <path d="M53 31C42 31 37 40 34 53C32 62 35 70 41 76C44 79 48 81 53 81C58 81 62 79 65 76C71 70 74 62 72 53C69 40 64 31 53 31Z" fill="#2D261F"/>
+  <path d="M52.5 40L63 68H57.5L55.5 61H49.5L47 68H41.5L52.5 40Z" fill="#FFF8F0"/>
+  <rect x="48" y="58" width="9" height="3.5" fill="#FFF8F0"/>
+  <text x="112" y="43" fill="#2D261F" font-family="Georgia, serif" font-size="30" font-weight="700" letter-spacing="1.2">ANGELIC</text>
+  <text x="112" y="69" fill="#786C60" font-family="Manrope, Arial, sans-serif" font-size="16" font-weight="700" letter-spacing="4">BAIL BONDS</text>
+</svg>
