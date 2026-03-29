@@ -35,7 +35,7 @@ function renderShell() {
     </div>
     <button id="logoutBtn" class="btn btn-outline">Logout</button>
   </header>
-  <main id="defendantMain" class="main-content"></main>
+  <main id="defendantMain" class="main-content defendant-main"></main>
   <nav class="bottom-nav" id="defNav"></nav>`;
   document.getElementById("logoutBtn").addEventListener("click", () => { api.logout(); window.location.href = "/login.html"; });
 }
@@ -52,6 +52,10 @@ function renderNav() {
     render();
     renderNav();
   }));
+}
+
+function getAssignedBondsmanPhone(defendant, bond) {
+  return defendant.bail_agent_phone || bond?.company_phone || agency.contact.supportPhone;
 }
 
 function getD() {
@@ -220,7 +224,18 @@ async function handleCheckIn() {
 
     state.data.check_ins.unshift(result.entry);
     state.data.location_logs.unshift(result.locationLog);
-    state.data.activity.unshift({ agency_id: agency.id, at: result.entry.checked_in_at, text: `${state.defendant.full_name} check-in completed from defendant portal.` });
+    state.data.activity.unshift({
+      agency_id: agency.id,
+      type: "check_in",
+      defendant_id: state.defendant.id,
+      at: result.entry.checked_in_at,
+      text: `${state.defendant.full_name} check-in completed from defendant portal.`,
+      selfie_data_url: result.entry.selfie_data_url,
+      location: {
+        latitude: result.entry.latitude ?? null,
+        longitude: result.entry.longitude ?? null
+      }
+    });
     setCheckInStatus(`Check-in confirmed at ${fmtDate(result.entry.checked_in_at)}.${locationNote} Thank you for staying on track.`);
     resetCheckInDraft();
     render();
@@ -237,6 +252,7 @@ function render() {
   const main = document.getElementById("defendantMain");
   const { d, bond, court, payments, checkins, reminders } = getD();
   const nextPay = payments.find((payment) => payment.status !== "paid") || payments[0];
+  const helpFastPhone = getAssignedBondsmanPhone(d, bond);
 
   if (state.active === "dashboard") {
     main.innerHTML = `<section class="section-stack">
@@ -250,6 +266,7 @@ function render() {
         <div class="help-strip">
           <strong>Need help fast?</strong>
           <p class="muted">Need to reach your bail team? We respond quickly, day or night.</p>
+          <a class="btn btn-primary help-fast-action" href="${phoneHref(helpFastPhone)}">Call ${d.bail_agent_name || "your bondsman"} now</a>
         </div>
       </article>
       <article class="card grid two">

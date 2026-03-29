@@ -22,6 +22,149 @@ const state = {
 
 const menu = [["dashboard", "Dashboard"], ["defendants", "Defendant List"], ["reminders", "Reminder Center"], ["activity", "Activity Log"]];
 const app = document.getElementById("app");
+let modalEventsBound = false;
+
+function formatCurrency(value) {
+  if (typeof value !== "number" || Number.isNaN(value)) return "";
+  return value.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 2 });
+}
+
+function formatLocationLabel(location) {
+  if (!location) return "";
+  if (location.city && location.state) return `${location.city}, ${location.state}`;
+  if (typeof location.latitude === "number" && typeof location.longitude === "number") {
+    return `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`;
+  }
+  return "";
+}
+
+function normalizeActivityEntry(activity, data) {
+  const entry = { ...activity };
+  if (entry.check_in_id) {
+    const linkedCheckIn = data.check_ins.find((checkIn) => checkIn.id === entry.check_in_id);
+    if (linkedCheckIn) {
+      entry.selfie_data_url = entry.selfie_data_url || linkedCheckIn.selfie_data_url || "";
+      entry.location = entry.location || {
+        latitude: linkedCheckIn.latitude ?? null,
+        longitude: linkedCheckIn.longitude ?? null
+      };
+    }
+  }
+  return entry;
+}
+
+function isValidImageSource(value) {
+  if (typeof value !== "string") return false;
+  const src = value.trim();
+  if (!src) return false;
+  if (/^data:image\/[a-zA-Z+.-]+;base64,/.test(src)) return true;
+  if (/^data:image\/[a-zA-Z+.-]+,/.test(src)) return true;
+  if (/^blob:/.test(src)) return true;
+  if (/^https?:\/\//.test(src)) return true;
+  if (/^(\/|\.\/|\.\.\/)/.test(src)) return true;
+  return false;
+}
+
+function getActivityPreviewSource(entry) {
+  const selfie = entry.selfie_data_url || entry.selfie_url || entry.selfie_path || "";
+  return isValidImageSource(selfie) ? selfie : "";
+}
+
+function closeActivityImageModal() {
+  const modal = document.getElementById("activityImageModal");
+  const image = document.getElementById("activityImagePreview");
+  const fallback = document.getElementById("activityImageError");
+  if (modal) {
+    modal.hidden = true;
+    modal.setAttribute("aria-hidden", "true");
+  }
+  if (image) {
+    image.removeAttribute("src");
+    image.hidden = true;
+  }
+  if (fallback) fallback.hidden = true;
+  document.body.classList.remove("modal-open");
+}
+
+function openActivityImageModal(source) {
+  const modal = document.getElementById("activityImageModal");
+  const image = document.getElementById("activityImagePreview");
+  const fallback = document.getElementById("activityImageError");
+  if (!modal || !image || !isValidImageSource(source)) return;
+
+  closeActivityImageModal();
+  image.hidden = true;
+  if (fallback) fallback.hidden = true;
+  image.src = source;
+  modal.hidden = false;
+  modal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("modal-open");
+}
+
+function ensureActivityModalBindings() {
+  if (modalEventsBound) return;
+  const modal = document.getElementById("activityImageModal");
+  const closeModalButton = document.getElementById("closeActivityImageModal");
+  const image = document.getElementById("activityImagePreview");
+  const fallback = document.getElementById("activityImageError");
+  if (!modal || !closeModalButton || !image) return;
+
+  closeModalButton.addEventListener("click", closeActivityImageModal);
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) closeActivityImageModal();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !modal.hidden) closeActivityImageModal();
+  });
+  image.addEventListener("load", () => {
+    image.hidden = false;
+    if (fallback) fallback.hidden = true;
+  });
+  image.addEventListener("error", () => {
+    image.hidden = true;
+    if (fallback) fallback.hidden = false;
+  });
+
+  app.addEventListener("click", (event) => {
+    const thumbButton = event.target.closest(".activity-thumb-btn.is-clickable");
+    if (!thumbButton || !app.contains(thumbButton)) return;
+    const thumbImage = thumbButton.querySelector(".activity-thumb");
+    const source = thumbImage?.getAttribute("src") || "";
+    if (!isValidImageSource(source)) return;
+    openActivityImageModal(source);
+  });
+
+  modalEventsBound = true;
+}
+
+function renderActivityFeed(activities, data) {
+  if (!activities.length) return `<div class="help-strip">No activity has been recorded yet.</div>`;
+  return activities.map((activity) => {
+    const entry = normalizeActivityEntry(activity, data);
+    const previewSource = getActivityPreviewSource(entry);
+    const hasPreview = !!previewSource;
+    const thumb = hasPreview
+      ? `<button type="button" class="activity-thumb-btn is-clickable" aria-label="Open check-in selfie"><img class="activity-thumb" src="${previewSource}" alt="Check-in selfie thumbnail" loading="lazy" /></button>`
+      : `<div class="activity-thumb-placeholder" aria-hidden="true"></div>`;
+    const payment = typeof entry.payment_amount === "number" ? `<span class="badge warn">Payment ${formatCurrency(entry.payment_amount)}</span>` : "";
+    const location = formatLocationLabel(entry.location);
+    const locationHtml = location ? `<p class="muted activity-location">Location: ${location}</p>` : "";
+    const shouldShowNoSelfie = !hasPreview && (entry.type === "check_in" || /check-?in/i.test(entry.text || ""));
+    const noSelfie = shouldShowNoSelfie ? `<p class="muted activity-missing-selfie">No selfie available</p>` : "";
+    return `<article class="item activity-row">
+      <div class="activity-left">${thumb}</div>
+      <div class="activity-main">
+        <p class="activity-text"><strong>${entry.text}</strong></p>
+        ${locationHtml}
+        ${noSelfie}
+      </div>
+      <div class="activity-meta">
+        ${payment}
+        <span class="muted activity-time">${fmtDate(entry.at)}</span>
+      </div>
+    </article>`;
+  }).join("");
+}
 
 function renderShell() {
   app.innerHTML = `<header class="topbar">
@@ -37,7 +180,15 @@ function renderShell() {
   <main class="main-content admin-layout">
     <aside class="admin-sidebar card" id="adminSidebar"></aside>
     <section class="admin-panel" id="adminMain"></section>
-  </main>`;
+  </main>
+  <div class="image-modal" id="activityImageModal" hidden aria-hidden="true">
+    <div class="image-modal-inner card">
+      <button class="btn btn-outline image-modal-close" id="closeActivityImageModal" type="button">Close</button>
+      <img id="activityImagePreview" class="image-modal-preview" alt="Check-in selfie full size preview" />
+      <p id="activityImageError" class="muted image-modal-error" hidden>Unable to load selfie preview.</p>
+    </div>
+  </div>`;
+  ensureActivityModalBindings();
   document.getElementById("logoutBtn").onclick = () => { api.logout(); window.location.href = "/login.html"; };
 }
 
@@ -75,8 +226,8 @@ function defendantRows() {
   });
 }
 
-function markActivity(text) {
-  state.data.activity.unshift({ agency_id: agency.id, at: new Date().toISOString(), text });
+function markActivity(text, meta = {}) {
+  state.data.activity.unshift({ agency_id: agency.id, at: new Date().toISOString(), text, ...meta });
   api.saveData(state.data);
 }
 
@@ -145,7 +296,7 @@ function addDefendantSubmit(event) {
   state.data.payments.unshift(payment);
   state.selectedDefendantId = defendantId;
   state.showAddForm = false;
-  markActivity(`Defendant added: ${defendant.full_name}.`);
+  markActivity(`Defendant added: ${defendant.full_name}.`, { type: "defendant_add", defendant_id: defendantId });
   api.saveData(state.data);
   state.tab = "defendants";
   renderSidebar();
@@ -153,6 +304,7 @@ function addDefendantSubmit(event) {
 }
 
 function render() {
+  closeActivityImageModal();
   const main = document.getElementById("adminMain");
   const data = state.data;
   if (!state.selectedDefendantId) state.selectedDefendantId = data.defendants[0]?.id;
@@ -170,7 +322,7 @@ function render() {
         <button class="metric kpi-card" data-kpi="payment"><p class="kpi-label">Pending payments</p><p class="value">${pendingPayments}</p></button>
         <button class="metric kpi-card" data-kpi="missed"><p class="kpi-label">Missed check-ins</p><p class="value">${missed}</p></button>
       </div></article>
-      <article class="card"><h3>Recent activity</h3><div class="list">${data.activity.slice(0, 12).map((activity) => `<div class="item"><div class="kv"><strong>${activity.text}</strong><span class="muted">${fmtDate(activity.at)}</span></div></div>`).join("")}</div></article>
+      <article class="card"><h3>Recent activity</h3><div class="list" id="activityPreviewList">${renderActivityFeed(data.activity.slice(0, 12), data)}</div></article>
     </section>`;
     main.querySelectorAll(".kpi-card").forEach((card) => {
       card.onclick = () => {
@@ -300,6 +452,7 @@ function render() {
     document.getElementById("editCaseActive").value = String(selected.active);
     document.getElementById("editMissed").value = String(selected.missed_check_in);
     document.getElementById("saveCaseBtn").onclick = () => {
+      const previousPaymentStatus = payment?.status;
       if (court) {
         court.court_datetime = new Date(document.getElementById("editCourtDate").value).toISOString();
         court.court_address = document.getElementById("editCourtAddress").value;
@@ -312,7 +465,15 @@ function render() {
         payment.due_date = document.getElementById("editPayDue").value;
         payment.status = document.getElementById("editPayStatus").value;
       }
-      markActivity(`Case updated for ${selected.full_name}.`);
+      if (payment && previousPaymentStatus !== "paid" && payment.status === "paid") {
+        markActivity(`Payment marked paid for ${selected.full_name}.`, {
+          type: "payment",
+          defendant_id: selected.id,
+          payment_amount: payment.amount_due
+        });
+      } else {
+        markActivity(`Case updated for ${selected.full_name}.`, { defendant_id: selected.id });
+      }
       api.saveData(data);
       render();
     };
@@ -320,7 +481,7 @@ function render() {
       const body = document.getElementById("noteBody").value.trim();
       if (!body) return;
       data.notes.unshift({ id: `note-${Date.now()}`, agency_id: agency.id, defendant_id: selected.id, author_name: "Staff", body, created_at: new Date().toISOString() });
-      markActivity(`New staff note added for ${selected.full_name}.`);
+      markActivity(`New staff note added for ${selected.full_name}.`, { type: "note", defendant_id: selected.id });
       api.saveData(data);
       render();
     };
@@ -331,26 +492,32 @@ function render() {
         return;
       }
       navigator.geolocation.getCurrentPosition((position) => {
-        data.location_logs.unshift({ id: `loc-${Date.now()}`, agency_id: agency.id, defendant_id: selected.id, check_in_id: null, captured_at: new Date().toISOString(), latitude: +position.coords.latitude.toFixed(6), longitude: +position.coords.longitude.toFixed(6), source: "admin_capture" });
-        markActivity(`Admin captured location for ${selected.full_name}.`);
+        const latitude = +position.coords.latitude.toFixed(6);
+        const longitude = +position.coords.longitude.toFixed(6);
+        data.location_logs.unshift({ id: `loc-${Date.now()}`, agency_id: agency.id, defendant_id: selected.id, check_in_id: null, captured_at: new Date().toISOString(), latitude, longitude, source: "admin_capture" });
+        markActivity(`Admin captured location for ${selected.full_name}.`, {
+          type: "location_capture",
+          defendant_id: selected.id,
+          location: { latitude, longitude }
+        });
         api.saveData(data);
         render();
       }, () => {
-        markActivity(`Admin location capture failed for ${selected.full_name}.`);
+        markActivity(`Admin location capture failed for ${selected.full_name}.`, { defendant_id: selected.id });
         render();
       });
     };
     main.querySelectorAll(".toggle-reminder").forEach((button) => button.onclick = () => {
       const reminder = data.reminders.find((item) => item.id === button.dataset.id);
       reminder.acknowledged = !reminder.acknowledged;
-      markActivity(`Reminder acknowledgment updated for ${selected.full_name}.`);
+      markActivity(`Reminder acknowledgment updated for ${selected.full_name}.`, { defendant_id: selected.id });
       api.saveData(data);
       render();
     });
     main.querySelectorAll(".toggle-sent").forEach((button) => button.onclick = () => {
       const reminder = data.reminders.find((item) => item.id === button.dataset.id);
       reminder.status = reminder.status === "sent" ? "pending" : "sent";
-      markActivity(`Reminder status updated for ${selected.full_name}.`);
+      markActivity(`Reminder status updated for ${selected.full_name}.`, { defendant_id: selected.id });
       api.saveData(data);
       render();
     });
@@ -376,7 +543,7 @@ function render() {
       if (!title || !message) return;
       data.reminders.unshift({ id: `rem-${Date.now()}`, agency_id: agency.id, defendant_id: defendantId, type, title, message, scheduled_for: new Date().toISOString(), status: "pending", acknowledged: false });
       const defendant = data.defendants.find((item) => item.id === defendantId);
-      markActivity(`Reminder created for ${defendant.full_name}.`);
+      markActivity(`Reminder created for ${defendant.full_name}.`, { type: "reminder", defendant_id: defendantId });
       api.saveData(data);
       render();
     };
@@ -384,7 +551,7 @@ function render() {
   }
 
   if (state.tab === "activity") {
-    main.innerHTML = `<section class="card"><h2>Activity log</h2><p class="muted">Recent system and staff updates for accountability.</p><div class="list">${data.activity.map((activity) => `<div class="item"><div class="kv"><strong>${activity.text}</strong><span class="muted">${fmtDate(activity.at)}</span></div></div>`).join("")}</div></section>`;
+    main.innerHTML = `<section class="card"><h2>Activity log</h2><p class="muted">Recent system and staff updates for accountability.</p><div class="list" id="activityLogList">${renderActivityFeed(data.activity, data)}</div></section>`;
   }
 }
 

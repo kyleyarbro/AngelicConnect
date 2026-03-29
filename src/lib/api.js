@@ -136,7 +136,18 @@ export const api = {
     const state = loadState();
     state.check_ins.unshift(entry);
     state.location_logs.unshift(locationLog);
-    state.activity.unshift({ agency_id: agency.id, at: now, text: `${payload.defendantName || "Defendant"} check-in completed from defendant portal.` });
+    state.activity.unshift({
+      agency_id: agency.id,
+      type: "check_in",
+      defendant_id: payload.defendantId,
+      at: now,
+      text: `${payload.defendantName || "Defendant"} check-in completed from defendant portal.`,
+      selfie_data_url: payload.selfieDataUrl,
+      location: {
+        latitude: payload.latitude ?? null,
+        longitude: payload.longitude ?? null
+      }
+    });
     saveState(state);
     return { entry, locationLog };
   },

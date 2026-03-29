@@ -27,18 +27,18 @@ const angelicAgency = {
     currentIconName: "app-icon.svg"
   },
   theme: {
-    primary: "#f5ecdf",
-    secondary: "#e5d4bc",
-    accent: "#b8844b",
-    background: "#fcf8f2",
+    primary: "#f6efe3",
+    secondary: "#ead8bf",
+    accent: "#a66b2d",
+    background: "#fffdf9",
     surface: "#ffffff",
-    surfaceAlt: "#f7f0e6",
-    border: "#decebb",
-    text: "#2d261f",
-    muted: "#786c60",
-    success: "#5d8167",
-    warning: "#b07b42",
-    error: "#b65448"
+    surfaceAlt: "#f8f3eb",
+    border: "#d8c4aa",
+    text: "#231c15",
+    muted: "#6f6256",
+    success: "#2f7a53",
+    warning: "#9a6325",
+    error: "#b24a3a"
   },
   features: {
     enableReminders: true,
@@ -56,8 +56,8 @@ const angelicAgency = {
     cameraPermissionMessage: "Please allow front-camera access so we can capture your live check-in selfie."
   },
   manifest: {
-    themeColor: "#fcf8f2",
-    backgroundColor: "#fcf8f2",
+    themeColor: "#fffdf9",
+    backgroundColor: "#fffdf9",
     description: "Mobile-first support for Angelic Bail Bonds."
   }
 };

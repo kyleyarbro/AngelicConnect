@@ -8,9 +8,9 @@ export function buildSeedData(agency) {
       { id: "u-admin-1", agency_id: agency.id, role: "admin", email: `admin@${emailDomain}`, password: "Admin@123", name: "Sofia Ramirez" }
     ],
     defendants: [
-      { id: "def-1", agency_id: agency.id, full_name: "Marcus Allen", dob: "1992-07-16", phone: "(702) 555-0184", email: `defendant@${emailDomain}`, emergency_contact_name: "Angela Allen", emergency_contact_phone: "(702) 555-0118", active: true, bond_status: "active", missed_check_in: false, bail_agent_name: "Renee Harper" },
-      { id: "def-2", agency_id: agency.id, full_name: "Trevor James", dob: "1986-04-09", phone: "(702) 555-0142", email: "trevor.james@example.com", emergency_contact_name: "Lena James", emergency_contact_phone: "(702) 555-0199", active: true, bond_status: "active", missed_check_in: true, bail_agent_name: "Derek Cole" },
-      { id: "def-3", agency_id: agency.id, full_name: "Kayla Moore", dob: "1998-12-01", phone: "(702) 555-0125", email: "kayla.moore@example.com", emergency_contact_name: "Robert Moore", emergency_contact_phone: "(702) 555-0162", active: false, bond_status: "closed", missed_check_in: false, bail_agent_name: "Renee Harper" }
+      { id: "def-1", agency_id: agency.id, full_name: "Marcus Allen", dob: "1992-07-16", phone: "(702) 555-0184", email: `defendant@${emailDomain}`, emergency_contact_name: "Angela Allen", emergency_contact_phone: "(702) 555-0118", active: true, bond_status: "active", missed_check_in: false, bail_agent_name: "Renee Harper", bail_agent_phone: agency.contact.supportPhone },
+      { id: "def-2", agency_id: agency.id, full_name: "Trevor James", dob: "1986-04-09", phone: "(702) 555-0142", email: "trevor.james@example.com", emergency_contact_name: "Lena James", emergency_contact_phone: "(702) 555-0199", active: true, bond_status: "active", missed_check_in: true, bail_agent_name: "Derek Cole", bail_agent_phone: agency.contact.supportPhone },
+      { id: "def-3", agency_id: agency.id, full_name: "Kayla Moore", dob: "1998-12-01", phone: "(702) 555-0125", email: "kayla.moore@example.com", emergency_contact_name: "Robert Moore", emergency_contact_phone: "(702) 555-0162", active: false, bond_status: "closed", missed_check_in: false, bail_agent_name: "Renee Harper", bail_agent_phone: agency.contact.supportPhone }
     ],
     bonds: [
       { id: "bond-1", agency_id: agency.id, defendant_id: "def-1", bond_number: `${agency.slug.toUpperCase().slice(0, 3)}-2026-00117`, bond_amount: 15000, status: "active", charges: "Non-violent felony charge", conditions: "Weekly check-in, maintain current residence, appear at all court dates.", indemnitor_name: "Angela Allen", indemnitor_phone: "(702) 555-0118", company_name: agency.companyName, company_phone: agency.contact.supportPhone, company_email: agency.supportEmailOverride || agency.contact.supportEmail }
@@ -42,9 +42,24 @@ export function buildSeedData(agency) {
       { id: "note-2", agency_id: agency.id, defendant_id: "def-1", author_name: "Derek Cole", body: "Payment posted in full for March cycle. Next follow-up set for April 1.", created_at: "2026-03-01T20:20:00Z" }
     ],
     activity: [
-      { agency_id: agency.id, at: "2026-03-25T16:43:00Z", text: "Marcus Allen check-in completed from mobile." },
-      { agency_id: agency.id, at: "2026-03-24T20:00:00Z", text: "Staff note added for Marcus Allen." },
-      { agency_id: agency.id, at: "2026-03-22T14:15:00Z", text: "Payment marked paid for Trevor James." }
+      {
+        agency_id: agency.id,
+        type: "check_in",
+        defendant_id: "def-1",
+        at: "2026-03-25T16:43:00Z",
+        text: "Marcus Allen check-in completed from mobile.",
+        selfie_data_url: selfieSvg,
+        location: { city: "Las Vegas", state: "NV", latitude: 36.1602, longitude: -115.1457 }
+      },
+      { agency_id: agency.id, type: "note", defendant_id: "def-1", at: "2026-03-24T20:00:00Z", text: "Staff note added for Marcus Allen." },
+      {
+        agency_id: agency.id,
+        type: "payment",
+        defendant_id: "def-2",
+        at: "2026-03-22T14:15:00Z",
+        text: "Payment marked paid for Trevor James.",
+        payment_amount: 250
+      }
     ]
   };
 }
