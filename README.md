@@ -144,7 +144,7 @@ Key relationships:
 1. Sign in as admin.
 2. Verify operations dashboard metrics and recent activity.
 3. Open Defendant List and use search/filters.
-4. Open defendant details from the Defendant List and update court date, address, bond status, payment fields, active/inactive, missed check-in flag.
+4. Open a case profile and update court date, address, bond status, payment fields, active/inactive, missed check-in flag.
 5. Add internal note and capture location snapshot from admin view.
 6. Open Reminder Center to create and track reminders.
 

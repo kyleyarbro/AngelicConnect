@@ -7,7 +7,7 @@
   --brand-surface-alt: #1d2a3a;
   --brand-border: #33465a;
   --brand-text: #f3f5f8;
-  --brand-muted: #c0c9d6;
+  --brand-muted: #b0bccb;
   --brand-success: #5eb98b;
   --brand-warning: #d3a35e;
   --brand-error: #cf7a7a;
@@ -180,45 +180,23 @@ label { font-size: .9rem; color: color-mix(in srgb, var(--brand-muted) 86%, whit
 }
 
 
-.dashboard-overview {
-  padding: 1.15rem;
-}
-.dashboard-eyebrow {
-  color: color-mix(in srgb, var(--brand-accent) 58%, var(--brand-text) 42%);
-  font-weight: 600;
-}
-.dashboard-title {
-  color: color-mix(in srgb, var(--brand-text) 94%, white 6%);
-  font-size: 1.34rem;
-  margin-bottom: .55rem;
-}
-.dashboard-kpis {
-  gap: .9rem;
-}
-
 .kpi-card {
   text-align: left;
   cursor: pointer;
-  transition: transform .14s ease, border-color .14s ease, box-shadow .14s ease;
-  border-color: color-mix(in srgb, var(--brand-border) 72%, white 28%);
-  padding: .95rem;
+  transition: transform .14s ease, border-color .14s ease;
 }
 .kpi-card:hover {
   transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--brand-accent) 62%, var(--brand-border) 38%);
-  box-shadow: 0 8px 20px rgba(0,0,0,.22);
+  border-color: color-mix(in srgb, var(--brand-accent) 60%, var(--brand-border) 40%);
 }
 
-.kpi-card .kpi-label {
-  color: color-mix(in srgb, var(--brand-text) 90%, white 10%);
+.kpi-card p {
+  color: color-mix(in srgb, var(--brand-text) 88%, white 12%);
   font-weight: 600;
-  margin-bottom: .35rem;
 }
 .kpi-card .value {
-  color: color-mix(in srgb, var(--brand-accent) 68%, #ffffff 32%);
+  color: color-mix(in srgb, var(--brand-accent) 60%, #fff 40%);
   text-shadow: 0 1px 0 rgba(0,0,0,.35);
-  font-size: 1.5rem;
-  line-height: 1.1;
 }
 .kpi-card:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--brand-accent) 65%, white 35%);
