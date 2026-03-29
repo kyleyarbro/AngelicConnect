@@ -4,8 +4,8 @@
   "description": "Mobile-first support for Angelic Bail Bonds.",
   "start_url": "./login.html",
   "display": "standalone",
-  "background_color": "#fffdf9",
-  "theme_color": "#fffdf9",
+  "background_color": "#fffdf8",
+  "theme_color": "#fffdf8",
   "icons": [
     {
       "src": "./icons/current/app-icon.svg",

@@ -1,16 +1,16 @@
 :root {
-  --brand-primary: #f6efe3;
-  --brand-secondary: #ead8bf;
-  --brand-accent: #a66b2d;
-  --brand-bg: #fffdf9;
+  --brand-primary: #f8f2e8;
+  --brand-secondary: #ebdfcf;
+  --brand-accent: #b88746;
+  --brand-bg: #fffdf8;
   --brand-surface: #ffffff;
-  --brand-surface-alt: #f8f3eb;
-  --brand-border: #d8c4aa;
-  --brand-text: #231c15;
-  --brand-muted: #6f6256;
+  --brand-surface-alt: #fbf6ef;
+  --brand-border: #e3d2bc;
+  --brand-text: #1f1913;
+  --brand-muted: #6a5b4c;
   --brand-success: #2f7a53;
-  --brand-warning: #9a6325;
-  --brand-error: #b24a3a;
+  --brand-warning: #9d6a2b;
+  --brand-error: #af473a;
 
   --radius: 18px;
   --radius-sm: 14px;
@@ -31,9 +31,9 @@ body {
   font-family: "Manrope", "Segoe UI", sans-serif;
   line-height: 1.45;
   background:
-    radial-gradient(circle at top left, rgba(166, 107, 45, 0.1), transparent 30%),
-    radial-gradient(circle at top right, rgba(234, 216, 191, 0.56), transparent 38%),
-    linear-gradient(180deg, #ffffff 0%, var(--brand-bg) 58%, #f9f3ea 100%);
+    radial-gradient(circle at top left, rgba(184, 135, 70, 0.1), transparent 30%),
+    radial-gradient(circle at top right, rgba(235, 223, 207, 0.58), transparent 40%),
+    linear-gradient(180deg, #ffffff 0%, var(--brand-bg) 58%, #faf4ea 100%);
 }
 
 body.modal-open {
@@ -63,7 +63,7 @@ a {
 }
 
 .card {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(248, 243, 235, 0.96));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(251, 246, 239, 0.97));
   border: 1px solid var(--brand-border);
   border-radius: var(--radius);
   padding: 1rem;
@@ -73,7 +73,7 @@ a {
 .item {
   border: 1px solid color-mix(in srgb, var(--brand-border) 85%, white 15%);
   border-radius: var(--radius-sm);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(248, 242, 233, 0.96));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(251, 245, 236, 0.97));
   padding: .82rem;
   box-shadow: var(--shadow-soft);
 }
@@ -136,8 +136,8 @@ a {
 
 .btn-primary {
   color: #fffaf5;
-  border-color: color-mix(in srgb, var(--brand-accent) 60%, #8a5624 40%);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--brand-accent) 90%, #d8ab75 10%), color-mix(in srgb, var(--brand-accent) 74%, #8a5624 26%));
+  border-color: color-mix(in srgb, var(--brand-accent) 64%, #8f5c2d 36%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--brand-accent) 90%, #e2be8f 10%), color-mix(in srgb, var(--brand-accent) 75%, #936233 25%));
 }
 
 .btn-outline {
@@ -250,7 +250,7 @@ label {
   top: 0;
   z-index: 8;
   border-bottom: 1px solid rgba(222, 206, 187, 0.85);
-  background: rgba(255, 252, 247, 0.94);
+  background: rgba(255, 252, 248, 0.95);
   backdrop-filter: blur(12px);
   display: flex;
   justify-content: space-between;
@@ -343,7 +343,7 @@ label {
   padding: .4rem .4rem calc(.4rem + env(safe-area-inset-bottom));
   min-height: var(--bottom-nav-height);
   border-top: 1px solid rgba(222, 206, 187, 0.92);
-  background: rgba(255, 252, 247, 0.96);
+  background: rgba(255, 252, 248, 0.97);
   backdrop-filter: blur(12px);
 }
 
@@ -360,8 +360,8 @@ label {
 
 .bottom-nav button.active {
   color: var(--brand-text);
-  background: linear-gradient(180deg, rgba(245, 236, 224, 0.98), rgba(236, 223, 205, 0.96));
-  box-shadow: inset 0 0 0 1px rgba(166, 107, 45, 0.16);
+  background: linear-gradient(180deg, rgba(247, 239, 228, 0.98), rgba(238, 225, 208, 0.97));
+  box-shadow: inset 0 0 0 1px rgba(184, 135, 70, 0.16);
 }
 
 .admin-layout {
