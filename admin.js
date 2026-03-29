@@ -16,7 +16,7 @@
     filters: { active: "all", bond: "all", missed: "all", court: "all", payment: "all" }
   };
 
-  const menu = [["dashboard", "Dashboard"], ["defendants", "Defendant List"], ["profile", "Case Profile"], ["reminders", "Reminder Center"], ["activity", "Activity Log"]];
+  const menu = [["dashboard", "Dashboard"], ["defendants", "Defendant List"], ["reminders", "Reminder Center"], ["activity", "Activity Log"]];
   function fmt(d) { return new Date(d).toLocaleString(); }
 
   function renderSidebar() {
@@ -236,11 +236,11 @@
       document.getElementById("missedFilter").onchange=(e)=>{state.filters.missed=e.target.value; render();};
       document.getElementById("courtFilter").onchange=(e)=>{state.filters.court=e.target.value; render();};
       document.getElementById("paymentFilter").onchange=(e)=>{state.filters.payment=e.target.value; render();};
-      main.querySelectorAll(".name-link").forEach((nameBtn)=>nameBtn.onclick=()=>{state.selectedDefendantId=nameBtn.dataset.id; state.tab="profile"; renderSidebar(); render();});
+      main.querySelectorAll(".name-link").forEach((nameBtn)=>nameBtn.onclick=()=>{state.selectedDefendantId=nameBtn.dataset.id; state.tab="details"; renderSidebar(); render();});
       return;
     }
 
-    if (state.tab === "profile") {
+    if (state.tab === "details") {
       const bond = data.bonds.find((b)=>b.defendant_id===selected.id);
       const court = data.court_dates.find((c)=>c.defendant_id===selected.id);
       const payment = data.payments.find((p)=>p.defendant_id===selected.id && p.status !== "paid") || data.payments.find((p)=>p.defendant_id===selected.id);
@@ -250,7 +250,7 @@
       const reminders = data.reminders.filter((r)=>r.defendant_id===selected.id);
 
       main.innerHTML = `<section class="section-stack">
-      <article class="card"><p class="eyebrow">Case profile</p><h2>${selected.full_name}</h2><p class="muted">${selected.email} · ${selected.phone}</p>
+      <article class="card"><p class="eyebrow">Defendant details</p><h2>${selected.full_name}</h2><p class="muted">${selected.email} · ${selected.phone}</p>
       <div class="grid two">
         <div class="item"><strong>Bond status</strong><p>${selected.bond_status}</p></div>
         <div class="item"><strong>Active case</strong><p>${selected.active ? "Yes" : "No"}</p></div>
