@@ -16,6 +16,8 @@ Angelic Connect is a mobile-first operational platform for Angelic Bail Bonds wi
 - `supabase.js`
 - `config.example.js`
 - `config.js`
+- `site.webmanifest`
+- `assets/icons/angelic-app-icon.svg`
 - `schema.sql`
 - `README.md`
 
@@ -58,7 +60,7 @@ window.APP_CONFIG = {
   brand: {
     companyName: "Angelic Bail Bonds",
     productName: "Angelic Connect",
-    supportPhone: "+1 (919) 555-0142",
+    supportPhone: "(910) 594-4449",
     supportEmail: "support@angelicbailbonds.com",
     theme: {
       primary: "#15304b",
@@ -136,15 +138,15 @@ Key relationships:
 ### Defendant Side
 1. Sign in as defendant.
 2. Verify dashboard priorities: next court date, check-in, payment due, quick contact.
-3. Open Check-In and tap **Check in now**.
-4. Confirm check-in history updates and location is recorded or gracefully marked unavailable.
+3. Open Check-In, upload a selfie, and tap **Check in now**.
+4. Confirm the form blocks submission without a selfie, then confirm check-in history updates and location is recorded or gracefully marked unavailable.
 5. Review Court, Payments, Reminders, Contact, and Profile sections.
 
 ### Admin Side
 1. Sign in as admin.
 2. Verify operations dashboard metrics and recent activity.
 3. Open Defendant List and use search/filters.
-4. Open a case profile and update court date, address, bond status, payment fields, active/inactive, missed check-in flag.
+4. Open defendant details from the Defendant List and update court date, address, bond status, payment fields, active/inactive, missed check-in flag.
 5. Add internal note and capture location snapshot from admin view.
 6. Open Reminder Center to create and track reminders.
 

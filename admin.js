@@ -152,11 +152,11 @@
       const pendingPayments = data.payments.filter((p)=>p.status !== "paid").length;
       const missed = data.defendants.filter((d)=>d.missed_check_in).length;
       main.innerHTML = `<section class="section-stack">
-        <article class="card"><p class="eyebrow">Operations overview</p><h2>Current case priorities</h2><div class="grid two">
-          <button class="metric kpi-card" data-kpi="active"><p>Active defendants</p><p class="value">${active}</p></button>
-          <button class="metric kpi-card" data-kpi="court"><p>Court dates (7 days)</p><p class="value">${upcoming}</p></button>
-          <button class="metric kpi-card" data-kpi="payment"><p>Pending payments</p><p class="value">${pendingPayments}</p></button>
-          <button class="metric kpi-card" data-kpi="missed"><p>Missed check-ins</p><p class="value">${missed}</p></button>
+        <article class="card dashboard-overview"><p class="eyebrow dashboard-eyebrow">Operations overview</p><h2 class="dashboard-title">Current case priorities</h2><div class="grid two dashboard-kpis">
+          <button class="metric kpi-card" data-kpi="active"><p class="kpi-label">Active defendants</p><p class="value">${active}</p></button>
+          <button class="metric kpi-card" data-kpi="court"><p class="kpi-label">Court dates (7 days)</p><p class="value">${upcoming}</p></button>
+          <button class="metric kpi-card" data-kpi="payment"><p class="kpi-label">Pending payments</p><p class="value">${pendingPayments}</p></button>
+          <button class="metric kpi-card" data-kpi="missed"><p class="kpi-label">Missed check-ins</p><p class="value">${missed}</p></button>
         </div></article>
         <article class="card"><h3>Recent activity</h3><div class="list">${data.activity.slice(0,12).map((a)=>`<div class="item"><div class="kv"><strong>${a.text}</strong><span class="muted">${fmt(a.at)}</span></div></div>`).join("")}</div></article>
       </section>`;
@@ -278,7 +278,7 @@
         <div class="kv"><span>Emergency contact</span><strong>${selected.emergency_contact_name} · ${selected.emergency_contact_phone}</strong></div>
       </article>
 
-      <article class="card"><h3>Check-in history</h3><div class="list">${checkins.map((c)=>`<div class="item"><div class="kv"><strong>${fmt(c.checked_in_at)}</strong><span>${c.latitude?`${c.latitude}, ${c.longitude}`:"Location unavailable"}</span></div></div>`).join("") || "No check-ins recorded."}</div></article>
+      <article class="card"><h3>Check-in history</h3><div class="list">${checkins.map((c)=>`<div class="item"><div class="kv"><strong>${fmt(c.checked_in_at)}</strong><span>${c.latitude?`${c.latitude}, ${c.longitude}`:"Location unavailable"}</span></div><p class="muted">Selfie: ${c.selfie_name || "Captured"}</p>${c.selfie_data_url ? `<img class="selfie-thumb" src="${c.selfie_data_url}" alt="Check-in selfie for ${selected.full_name}" />` : ""}</div>`).join("") || "No check-ins recorded."}</div></article>
       <article class="card"><h3>Location log</h3><div class="list">${locs.map((l)=>`<div class="item"><div class="kv"><strong>${fmt(l.captured_at)}</strong><span>${l.latitude ?? "N/A"}, ${l.longitude ?? "N/A"}</span></div><p class="muted">${l.source}</p></div>`).join("") || "No location captures recorded."}</div></article>
 
       <article class="card"><h3>Internal notes</h3>

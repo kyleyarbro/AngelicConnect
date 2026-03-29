@@ -80,6 +80,8 @@ create table if not exists public.check_ins (
   status text not null,
   latitude numeric(9,6),
   longitude numeric(9,6),
+  selfie_name text not null,
+  selfie_data_url text not null,
   created_at timestamptz not null default now()
 );
 

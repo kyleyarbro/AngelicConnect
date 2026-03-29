@@ -7,7 +7,7 @@
     ["dashboard", "Home"], ["checkin", "Check In"], ["court", "Court"],
     ["payments", "Payments"], ["reminders", "Reminders"], ["contact", "Contact"], ["profile", "Profile"]
   ];
-  const state = { active: "dashboard", data: null, defendant: null };
+  const state = { active: "dashboard", data: null, defendant: null, checkInFeedback: { message: "", isError: false } };
 
   const main = document.getElementById("defendantMain");
   const nav = document.getElementById("defNav");
@@ -37,39 +37,103 @@
     };
   }
 
-  async function handleCheckIn() {
+  function setCheckInStatus(message, isError = false) {
+    state.checkInFeedback = { message, isError };
     const info = document.getElementById("checkinStatus");
-    info.textContent = "Checking in now and securing your location confirmation...";
-    const now = new Date().toISOString();
-    const data = state.data;
-    const entry = { id: `ci-${Date.now()}`, defendant_id: state.defendant.id, checked_in_at: now, source: "mobile", status: "received", latitude: null, longitude: null };
+    if (!info) return;
+    info.textContent = message;
+    info.style.color = isError ? "var(--brand-error)" : "";
+  }
 
-    const save = () => {
-      data.check_ins.push(entry);
-      data.location_logs.push({ id: `loc-${Date.now()}`, defendant_id: state.defendant.id, check_in_id: entry.id, captured_at: now, latitude: entry.latitude, longitude: entry.longitude, source: "check_in" });
-      data.activity.unshift({ at: now, text: `${state.defendant.full_name} check-in completed from defendant portal.` });
-      window.AngelicAPI.saveData(data);
-      info.textContent = `Check-in confirmed at ${fmtDate(now)}. Thank you for staying on track.`;
-      render();
-    };
+  function readFileAsDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error("We could not read that selfie. Please try another photo."));
+      reader.readAsDataURL(file);
+    });
+  }
 
-    if (!navigator.geolocation) {
-      info.textContent = "Check-in confirmed. This device cannot share location.";
-      save();
+  function updateSelfiePreview() {
+    const input = document.getElementById("selfieUpload");
+    const preview = document.getElementById("selfiePreview");
+    const previewWrap = document.getElementById("selfiePreviewWrap");
+    if (!input || !preview || !previewWrap) return;
+
+    const file = input.files?.[0];
+    if (!file) {
+      preview.removeAttribute("src");
+      preview.alt = "";
+      previewWrap.hidden = true;
       return;
     }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        entry.latitude = +pos.coords.latitude.toFixed(6);
-        entry.longitude = +pos.coords.longitude.toFixed(6);
-        save();
-      },
-      () => {
-        info.textContent = "Check-in confirmed. Location permission was unavailable.";
-        save();
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
+
+    const objectUrl = URL.createObjectURL(file);
+    preview.src = objectUrl;
+    preview.alt = "Selected selfie preview";
+    previewWrap.hidden = false;
+    preview.onload = () => URL.revokeObjectURL(objectUrl);
+  }
+
+  async function handleCheckIn() {
+    const form = document.getElementById("checkInForm");
+    const input = document.getElementById("selfieUpload");
+    const submitBtn = document.getElementById("checkInBtn");
+    const file = input?.files?.[0];
+
+    if (!file) {
+      input?.focus();
+      setCheckInStatus("A selfie is required to complete check-in.", true);
+      return;
+    }
+
+    submitBtn.disabled = true;
+    form?.setAttribute("aria-busy", "true");
+    setCheckInStatus("Checking you in now and securing your location confirmation...");
+
+    let latitude = null;
+    let longitude = null;
+    let locationNote = "";
+
+    if (navigator.geolocation) {
+      try {
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000 });
+        });
+        latitude = +position.coords.latitude.toFixed(6);
+        longitude = +position.coords.longitude.toFixed(6);
+      } catch {
+        locationNote = " Location permission was unavailable.";
+      }
+    } else {
+      locationNote = " This device cannot share location.";
+    }
+
+    try {
+      const selfieDataUrl = await readFileAsDataUrl(file);
+      const result = await window.AngelicAPI.submitCheckIn({
+        defendantId: state.defendant.id,
+        defendantName: state.defendant.full_name,
+        source: "mobile",
+        latitude,
+        longitude,
+        selfieName: file.name,
+        selfieDataUrl
+      });
+
+      state.data.check_ins.unshift(result.entry);
+      state.data.location_logs.unshift(result.locationLog);
+      state.data.activity.unshift({ at: result.entry.checked_in_at, text: `${state.defendant.full_name} check-in completed from defendant portal.` });
+      setCheckInStatus(`Check-in confirmed at ${fmtDate(result.entry.checked_in_at)}.${locationNote} Thank you for staying on track.`);
+      form.reset();
+      updateSelfiePreview();
+      render();
+    } catch (error) {
+      setCheckInStatus(error.message || "We could not complete your check-in. Please try again.", true);
+    } finally {
+      submitBtn.disabled = false;
+      form?.removeAttribute("aria-busy");
+    }
   }
 
   function render() {
@@ -110,12 +174,27 @@
 
     if (state.active === "checkin") {
       main.innerHTML = `<section class="section-stack"><article class="card">
-        <h2>Stay on track with your check-in</h2><p class="muted">Tap below to submit your required check-in. We record the time automatically.</p>
-        <button id="checkInBtn" class="btn btn-primary" style="width:100%;font-size:1.12rem;margin-top:.8rem;">Check in now</button>
-        <p id="checkinStatus" class="status"></p></article>
-        <article class="card"><h3>Recent check-ins</h3><div class="list">${checkins.slice(0, 8).map((c)=>`<div class="item"><div class="kv"><span>${fmtDate(c.checked_in_at)}</span>${badge(c.status)}</div><p class="muted">${c.latitude ? `Lat ${c.latitude}, Lng ${c.longitude}` : "Location unavailable"}</p></div>`).join("")}</div></article>
+        <h2>Stay on track with your check-in</h2><p class="muted">Upload a current selfie and submit your required check-in. We record the time automatically.</p>
+        <form id="checkInForm" class="section-stack" novalidate>
+          <label for="selfieUpload">Selfie upload</label>
+          <input id="selfieUpload" name="selfie" type="file" accept="image/*" capture="user" required />
+          <p class="muted">A selfie is required to complete check-in.</p>
+          <div id="selfiePreviewWrap" class="selfie-preview-wrap" hidden>
+            <img id="selfiePreview" class="selfie-preview" alt="" />
+          </div>
+          <button id="checkInBtn" type="submit" class="btn btn-primary" style="width:100%;font-size:1.12rem;">Check in now</button>
+        </form>
+        <p id="checkinStatus" class="status" aria-live="polite">${state.checkInFeedback.message}</p></article>
+        <article class="card"><h3>Recent check-ins</h3><div class="list">${checkins.slice(0, 8).map((c)=>`<div class="item"><div class="kv"><span>${fmtDate(c.checked_in_at)}</span>${badge(c.status)}</div><p class="muted">${c.latitude ? `Lat ${c.latitude}, Lng ${c.longitude}` : "Location unavailable"}</p><p class="muted">Selfie: ${c.selfie_name || "Captured"}</p></div>`).join("")}</div></article>
       </section>`;
-      document.getElementById("checkInBtn").onclick = handleCheckIn;
+      if (state.checkInFeedback.isError) {
+        document.getElementById("checkinStatus").style.color = "var(--brand-error)";
+      }
+      document.getElementById("checkInForm").onsubmit = (event) => { event.preventDefault(); handleCheckIn(); };
+      document.getElementById("selfieUpload").addEventListener("change", () => {
+        updateSelfiePreview();
+        setCheckInStatus("");
+      });
       return;
     }
 
