@@ -138,8 +138,8 @@ Key relationships:
 ### Defendant Side
 1. Sign in as defendant.
 2. Verify dashboard priorities: next court date, check-in, payment due, quick contact.
-3. Open Check-In, upload a selfie, and tap **Check in now**.
-4. Confirm the form blocks submission without a selfie, then confirm check-in history updates and location is recorded or gracefully marked unavailable.
+3. Open Check-In, allow camera access, take a live selfie, and tap **Check in now**.
+4. Confirm check-in is blocked until a live selfie is captured, then confirm check-in history updates and location is recorded or gracefully marked unavailable.
 5. Review Court, Payments, Reminders, Contact, and Profile sections.
 
 ### Admin Side

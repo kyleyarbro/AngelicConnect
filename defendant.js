@@ -7,7 +7,15 @@
     ["dashboard", "Home"], ["checkin", "Check In"], ["court", "Court"],
     ["payments", "Payments"], ["reminders", "Reminders"], ["contact", "Contact"], ["profile", "Profile"]
   ];
-  const state = { active: "dashboard", data: null, defendant: null, checkInFeedback: { message: "", isError: false } };
+  const state = {
+    active: "dashboard",
+    data: null,
+    defendant: null,
+    checkInFeedback: { message: "", isError: false },
+    cameraStream: null,
+    cameraReady: false,
+    checkInDraft: { selfieDataUrl: "", selfieName: "", capturedAt: null }
+  };
 
   const main = document.getElementById("defendantMain");
   const nav = document.getElementById("defNav");
@@ -21,7 +29,15 @@
 
   function renderNav() {
     nav.innerHTML = navItems.map(([key, label]) => `<button data-key="${key}" class="${state.active === key ? "active" : ""}">${label}</button>`).join("");
-    nav.querySelectorAll("button").forEach((btn) => btn.addEventListener("click", () => { state.active = btn.dataset.key; render(); renderNav(); }));
+    nav.querySelectorAll("button").forEach((btn) => btn.addEventListener("click", () => {
+      if (state.active === "checkin" && btn.dataset.key !== "checkin") {
+        stopCamera();
+        resetCheckInDraft();
+      }
+      state.active = btn.dataset.key;
+      render();
+      renderNav();
+    }));
   }
 
   function getD() {
@@ -45,45 +61,115 @@
     info.style.color = isError ? "var(--brand-error)" : "";
   }
 
-  function readFileAsDataUrl(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = () => reject(new Error("We could not read that selfie. Please try another photo."));
-      reader.readAsDataURL(file);
-    });
+  function stopCamera() {
+    if (state.cameraStream) {
+      state.cameraStream.getTracks().forEach((track) => track.stop());
+      state.cameraStream = null;
+    }
+    state.cameraReady = false;
   }
 
   function updateSelfiePreview() {
-    const input = document.getElementById("selfieUpload");
     const preview = document.getElementById("selfiePreview");
     const previewWrap = document.getElementById("selfiePreviewWrap");
-    if (!input || !preview || !previewWrap) return;
+    if (!preview || !previewWrap) return;
 
-    const file = input.files?.[0];
-    if (!file) {
+    if (!state.checkInDraft.selfieDataUrl) {
       preview.removeAttribute("src");
       preview.alt = "";
       previewWrap.hidden = true;
       return;
     }
 
-    const objectUrl = URL.createObjectURL(file);
-    preview.src = objectUrl;
-    preview.alt = "Selected selfie preview";
+    preview.src = state.checkInDraft.selfieDataUrl;
+    preview.alt = "Live selfie captured for check-in";
     previewWrap.hidden = false;
-    preview.onload = () => URL.revokeObjectURL(objectUrl);
+  }
+
+  function resetCheckInDraft() {
+    state.checkInDraft = { selfieDataUrl: "", selfieName: "", capturedAt: null };
+    state.cameraReady = false;
+    updateSelfiePreview();
+  }
+
+  async function startCamera(autoStarted = false) {
+    const video = document.getElementById("selfieCamera");
+    const status = document.getElementById("cameraHelp");
+    const captureBtn = document.getElementById("captureSelfieBtn");
+    if (!video || !status || !captureBtn) return;
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      state.cameraReady = false;
+      status.textContent = "This browser cannot open a live camera here. A supported mobile browser is required for camera-only check-in.";
+      captureBtn.disabled = true;
+      return;
+    }
+
+    stopCamera();
+    captureBtn.disabled = true;
+    status.textContent = autoStarted ? "Opening your front camera..." : "Opening camera...";
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: "user" },
+          width: { ideal: 1080 },
+          height: { ideal: 1440 }
+        },
+        audio: false
+      });
+      state.cameraStream = stream;
+      video.srcObject = stream;
+      await video.play();
+      state.cameraReady = true;
+      captureBtn.disabled = false;
+      status.textContent = "Center your face in frame, then tap Take Selfie.";
+      setCheckInStatus("");
+    } catch {
+      state.cameraReady = false;
+      status.textContent = autoStarted
+        ? "Your browser blocked automatic camera launch. Tap Open Camera to continue."
+        : "We couldn't access the camera. Please allow camera access and try again.";
+      captureBtn.disabled = true;
+    }
+  }
+
+  function captureSelfie() {
+    const video = document.getElementById("selfieCamera");
+    const canvas = document.getElementById("selfieCanvas");
+    const status = document.getElementById("cameraHelp");
+    const retakeBtn = document.getElementById("retakeSelfieBtn");
+    if (!video || !canvas || !state.cameraReady || !state.cameraStream) {
+      setCheckInStatus("A live selfie is required to complete check-in.", true);
+      return;
+    }
+
+    const width = video.videoWidth || 720;
+    const height = video.videoHeight || 960;
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, width, height);
+
+    const capturedAt = Date.now();
+    state.checkInDraft = {
+      selfieDataUrl: canvas.toDataURL("image/jpeg", 0.92),
+      selfieName: `live-selfie-${capturedAt}.jpg`,
+      capturedAt
+    };
+    updateSelfiePreview();
+    stopCamera();
+    if (retakeBtn) retakeBtn.hidden = false;
+    status.textContent = "Live selfie captured. If needed, you can retake it before submitting.";
+    setCheckInStatus("");
   }
 
   async function handleCheckIn() {
     const form = document.getElementById("checkInForm");
-    const input = document.getElementById("selfieUpload");
     const submitBtn = document.getElementById("checkInBtn");
-    const file = input?.files?.[0];
 
-    if (!file) {
-      input?.focus();
-      setCheckInStatus("A selfie is required to complete check-in.", true);
+    if (!state.checkInDraft.selfieDataUrl || !state.checkInDraft.capturedAt) {
+      setCheckInStatus("A live selfie is required to complete check-in.", true);
       return;
     }
 
@@ -110,23 +196,21 @@
     }
 
     try {
-      const selfieDataUrl = await readFileAsDataUrl(file);
       const result = await window.AngelicAPI.submitCheckIn({
         defendantId: state.defendant.id,
         defendantName: state.defendant.full_name,
         source: "mobile",
         latitude,
         longitude,
-        selfieName: file.name,
-        selfieDataUrl
+        selfieName: state.checkInDraft.selfieName,
+        selfieDataUrl: state.checkInDraft.selfieDataUrl
       });
 
       state.data.check_ins.unshift(result.entry);
       state.data.location_logs.unshift(result.locationLog);
       state.data.activity.unshift({ at: result.entry.checked_in_at, text: `${state.defendant.full_name} check-in completed from defendant portal.` });
       setCheckInStatus(`Check-in confirmed at ${fmtDate(result.entry.checked_in_at)}.${locationNote} Thank you for staying on track.`);
-      form.reset();
-      updateSelfiePreview();
+      resetCheckInDraft();
       render();
     } catch (error) {
       setCheckInStatus(error.message || "We could not complete your check-in. Please try again.", true);
@@ -137,6 +221,7 @@
   }
 
   function render() {
+    if (state.active !== "checkin") stopCamera();
     const { d, bond, court, payments, checkins, reminders } = getD();
     const nextPay = payments.find((p) => p.status !== "paid") || payments[0];
 
@@ -168,20 +253,38 @@
           <button class="btn" data-go="contact">Need to reach your bail team?</button>
         </article>
       </section>`;
-      main.querySelectorAll("button[data-go]").forEach((b)=>b.onclick=()=>{state.active=b.dataset.go; render(); renderNav();});
+      main.querySelectorAll("button[data-go]").forEach((b)=>b.onclick=()=>{
+        if (state.active === "checkin" && b.dataset.go !== "checkin") {
+          stopCamera();
+          resetCheckInDraft();
+        }
+        state.active=b.dataset.go;
+        render();
+        renderNav();
+      });
       return;
     }
 
     if (state.active === "checkin") {
       main.innerHTML = `<section class="section-stack"><article class="card">
-        <h2>Stay on track with your check-in</h2><p class="muted">Upload a current selfie and submit your required check-in. We record the time automatically.</p>
+        <h2>Stay on track with your check-in</h2><p class="muted">Use your front camera to take a live selfie, then submit your required check-in. We record the time automatically.</p>
         <form id="checkInForm" class="section-stack" novalidate>
-          <label for="selfieUpload">Selfie upload</label>
-          <input id="selfieUpload" name="selfie" type="file" accept="image/*" capture="user" required />
-          <p class="muted">A selfie is required to complete check-in.</p>
+          <div class="camera-panel">
+            <div class="camera-frame">
+              <video id="selfieCamera" class="selfie-camera" autoplay playsinline muted></video>
+            </div>
+            <canvas id="selfieCanvas" hidden></canvas>
+            <p id="cameraHelp" class="muted">Opening your front camera...</p>
+            <div class="grid two">
+              <button id="openCameraBtn" type="button" class="btn">Open Camera</button>
+              <button id="captureSelfieBtn" type="button" class="btn btn-primary">Take Selfie</button>
+            </div>
+          </div>
+          <p class="muted">A live selfie is required to complete check-in.</p>
           <div id="selfiePreviewWrap" class="selfie-preview-wrap" hidden>
             <img id="selfiePreview" class="selfie-preview" alt="" />
           </div>
+          <button id="retakeSelfieBtn" type="button" class="btn btn-outline"${state.checkInDraft.selfieDataUrl ? "" : " hidden"}>Retake Selfie</button>
           <button id="checkInBtn" type="submit" class="btn btn-primary" style="width:100%;font-size:1.12rem;">Check in now</button>
         </form>
         <p id="checkinStatus" class="status" aria-live="polite">${state.checkInFeedback.message}</p></article>
@@ -191,10 +294,23 @@
         document.getElementById("checkinStatus").style.color = "var(--brand-error)";
       }
       document.getElementById("checkInForm").onsubmit = (event) => { event.preventDefault(); handleCheckIn(); };
-      document.getElementById("selfieUpload").addEventListener("change", () => {
-        updateSelfiePreview();
-        setCheckInStatus("");
-      });
+      document.getElementById("openCameraBtn").onclick = () => startCamera(false);
+      document.getElementById("captureSelfieBtn").onclick = captureSelfie;
+      document.getElementById("retakeSelfieBtn").onclick = async () => {
+        resetCheckInDraft();
+        document.getElementById("retakeSelfieBtn").hidden = true;
+        await startCamera(false);
+      };
+      updateSelfiePreview();
+      if (state.checkInDraft.selfieDataUrl) {
+        document.getElementById("cameraHelp").textContent = "Live selfie captured. If needed, you can retake it before submitting.";
+      } else {
+        startCamera(true).then(() => {
+          const retakeBtn = document.getElementById("retakeSelfieBtn");
+          if (retakeBtn) retakeBtn.hidden = !state.checkInDraft.selfieDataUrl;
+        });
+      }
+      document.getElementById("retakeSelfieBtn").hidden = !state.checkInDraft.selfieDataUrl;
       return;
     }
 
@@ -271,4 +387,6 @@
     renderNav();
     render();
   })();
+
+  window.addEventListener("beforeunload", stopCamera);
 })();
