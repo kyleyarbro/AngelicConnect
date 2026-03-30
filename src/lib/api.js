@@ -10,10 +10,17 @@ const env = {
   ...fallbackEnv,
   ...browserEnv
 };
-const globalSupabase = typeof window !== "undefined" ? window.__SUPABASE__ : null;
-const client = globalSupabase?.client || null;
-const canUseSupabase = !!client;
+const canUseSupabase = !!(env.VITE_SUPABASE_URL && env.VITE_SUPABASE_ANON_KEY);
+let client = null;
 const storageBucket = "checkin-selfies";
+
+async function ensureSupabaseClient() {
+  if (!canUseSupabase) return null;
+  if (client) return client;
+  const module = await import("https://esm.sh/@supabase/supabase-js@2");
+  client = module.createClient(env.VITE_SUPABASE_URL, env.VITE_SUPABASE_ANON_KEY);
+  return client;
+}
 
 function loadState() {
   const raw = localStorage.getItem(getDataKey());
@@ -58,8 +65,7 @@ function filterAgencyRows(rows) {
 }
 
 async function fetchTable(table) {
-  const supabase = client;
-  if (!supabase) return { data: [], error: null };
+  const supabase = await ensureSupabaseClient();
   const query = supabase.from(table).select("*");
   if (agency.features.enforceAgencyScopeInQueries) return query.eq("agency_id", agency.id);
   return query;
@@ -75,7 +81,7 @@ export const api = {
 
   async login(email, password, role) {
     if (this.useSupabaseAuth) {
-      const supabase = client;
+      const supabase = await ensureSupabaseClient();
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw new Error(error.message);
       const current = loadState();
@@ -146,7 +152,7 @@ export const api = {
     let selfieStoragePath = null;
     let selfiePublicUrl = null;
     if (this.useSupabaseData && agency.features.enableSupabaseSelfieStorage) {
-      const supabase = client;
+      const supabase = await ensureSupabaseClient();
       const blob = toDataUrlBlob(payload.selfieDataUrl);
       if (blob) {
         const fileExt = blob.type.includes("png") ? "png" : "jpg";
@@ -192,7 +198,7 @@ export const api = {
     };
 
     if (this.useSupabaseData) {
-      const supabase = client;
+      const supabase = await ensureSupabaseClient();
       const { error: checkInError } = await supabase.from("check_ins").insert(entry);
       if (checkInError) throw new Error(checkInError.message);
       const { error: locationError } = await supabase.from("location_logs").insert(locationLog);
