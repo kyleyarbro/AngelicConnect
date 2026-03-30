@@ -1,9 +1,12 @@
 {
+  "id": "/angelic/",
   "name": "Angelic Connect",
   "short_name": "Angelic",
   "description": "Mobile-first support for Angelic Bail Bonds.",
   "start_url": "./login.html",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#fffdf8",
   "theme_color": "#fffdf8",
   "icons": [

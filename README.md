@@ -104,6 +104,41 @@ Shared runtime loading is handled in [agency.js](/c:/Users/Kyarb/AngelicConnect/
 
 Use `npm run prepare:branding` before `npm run dev` or `npm run build` for the agency you want to ship.
 
+PWA files used by the static runtime:
+
+- Root install/runtime files:
+  - `/manifest.json`
+  - `/service-worker.js`
+  - `/icons/current/*`
+- Script-generated mirrored files:
+  - `/public/manifest.json`
+  - `/public/service-worker.js`
+  - `/public/icons/current/*`
+
+`npm run prepare:branding` now refreshes both root and `public` icon/manifest targets so static `python -m http.server` usage and script-based flows stay aligned.
+
+## PWA Install Testing
+
+1. Serve locally:
+
+```bash
+python -m http.server
+```
+
+2. Open `http://localhost:8000/login.html` in Chrome/Edge (desktop or Android).
+3. Verify DevTools > Application:
+   - Manifest loads without errors
+   - Service worker is active (`/service-worker.js`)
+4. Use browser install prompt (or menu Install App) and confirm:
+   - App name and short name match agency config
+   - Home-screen icon uses `/icons/current/*`
+   - Theme/background colors match manifest values
+
+Limitations:
+
+- iOS install behavior uses Safari Add to Home Screen and has limited service-worker/background support compared to Android/desktop.
+- Installability still depends on browser heuristics and secure context rules (localhost is allowed for local testing).
+
 ## Deployment Notes
 
 To deploy a branded version:
