@@ -1,11 +1,10 @@
 # White-Label Bail Agency Platform
 
-This repo is now a white-label, config-driven bail agency platform built on Vite + vanilla JavaScript. One shared codebase can serve multiple branded agencies by selecting an agency slug and preparing that agency's manifest, icons, and theme tokens before deployment.
+This repo is a white-label, config-driven bail agency platform using static HTML + vanilla JavaScript modules. One shared codebase can serve multiple branded agencies by selecting an agency slug and preparing that agency's manifest, icons, and theme tokens before deployment.
 
 ## Stack
 
-- Vite multi-page app
-- Vanilla JavaScript modules
+- Static multi-page HTML + ES module JavaScript (no required build step for local runtime)
 - Shared CSS token system
 - Optional Supabase client integration
 - Static PWA manifest generation
@@ -57,33 +56,16 @@ VITE_SUPPORT_EMAIL=support@example.com
 
 ## Local Run
 
-1. Install dependencies:
+1. Optional: set runtime agency env values in `window.__APP_ENV__` (or `.env` if you also run script tooling).
+2. Serve statically from repo root:
 
 ```bash
-npm install
+python -m http.server
 ```
 
-2. Pick an agency:
+3. Open:
 
-```bash
-set VITE_AGENCY_SLUG=angelic
-```
-
-3. Prepare branding assets and manifest for that agency:
-
-```bash
-npm run prepare:branding
-```
-
-4. Start Vite:
-
-```bash
-npm run dev
-```
-
-5. Open:
-
-- `http://localhost:5173/login.html`
+- `http://localhost:8000/login.html`
 
 ## Adding A New Agency
 
@@ -126,26 +108,42 @@ Use `npm run prepare:branding` before `npm run dev` or `npm run build` for the a
 
 To deploy a branded version:
 
-1. Set `VITE_AGENCY_SLUG`
-2. Set `VITE_SUPPORT_EMAIL`
-3. Run `npm run prepare:branding`
-4. Run `npm run build`
-5. Deploy the built output
+1. Set agency/runtime values for the environment (`VITE_AGENCY_SLUG`, `VITE_SUPPORT_EMAIL`, etc.).
+2. Run `npm run prepare:branding` if you want to regenerate `public/icons/current/` + `public/manifest.json`.
+3. Deploy the static repo output (or your selected static export target) and serve over HTTPS.
 
-Each deployment should use one agency slug at a time so the generated `manifest.json` and `public/icons/current/` match the chosen brand.
+Each deployment should use one agency slug at a time so the generated manifest/icons match the chosen brand.
 
 ## Supabase Multi-Agency Readiness
 
 Current status:
 
-- Frontend seed data is agency-aware
-- Agency selection is environment-driven
-- Supabase integration remains optional
-- Query-level agency filtering is scaffolded behind a feature flag and disabled by default to avoid breaking older schemas
+- Frontend seed data is agency-aware (`agency_id` on agency-owned seeded records).
+- Agency selection is environment-driven.
+- Supabase integration remains optional.
+- Query-level agency filtering is enabled through agency config (`enforceAgencyScopeInQueries: true`).
+- Check-in writes include `agency_id`, capture metadata, and create agency-scoped activity entries.
+- `activity_logs` table support is wired in client read mapping.
+- Optional Supabase Storage selfie path scaffold exists (feature-flagged).
 
-Scaffolding added:
+Schema / migration files:
 
+- [schema.sql](/c:/Users/Kyarb/AngelicConnect/schema.sql)
 - [20260329_multi_agency_scaffold.sql](/c:/Users/Kyarb/AngelicConnect/supabase/migrations/20260329_multi_agency_scaffold.sql)
+- [20260329_multi_agency_hardening.sql](/c:/Users/Kyarb/AngelicConnect/supabase/migrations/20260329_multi_agency_hardening.sql)
 - [agency_rls.sql](/c:/Users/Kyarb/AngelicConnect/supabase/policies/agency_rls.sql)
 
-These files prepare `agency_id` columns and policy direction, but production-grade agency isolation still needs real auth claims and completed RLS wiring.
+Manual Supabase steps still required:
+
+1. Apply migration files in order.
+2. Backfill `agency_id` for legacy rows.
+3. Set `agency_id` columns to `NOT NULL` where backfill is complete.
+4. Add `agency_id` / `app_role` (and optionally `defendant_id`) claims to JWT/session context.
+5. Run policy script and validate access by role + agency.
+6. Create and secure the `checkin-selfies` storage bucket before enabling `enableSupabaseSelfieStorage`.
+
+Security / scaling notes:
+
+- RLS policies are prepared but still depend on real JWT claim wiring.
+- Admin write flows outside `submitCheckIn` are still local-first and need dedicated Supabase mutation handlers before production multi-tenant launch.
+- Check-in selfies still store `selfie_data_url` inline for compatibility; this is not ideal at scale. Use `enableSupabaseSelfieStorage` once storage bucket/policies are configured.

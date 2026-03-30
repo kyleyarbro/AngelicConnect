@@ -42,6 +42,7 @@
  * @property {boolean} enableSupabaseAuth
  * @property {boolean} enableSupabaseData
  * @property {boolean} enforceAgencyScopeInQueries
+ * @property {boolean} enableSupabaseSelfieStorage
  */
 
 /**

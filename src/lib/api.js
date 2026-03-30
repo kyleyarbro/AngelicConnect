@@ -12,6 +12,7 @@ const env = {
 };
 const canUseSupabase = !!(env.VITE_SUPABASE_URL && env.VITE_SUPABASE_ANON_KEY);
 let client = null;
+const storageBucket = "checkin-selfies";
 
 async function ensureSupabaseClient() {
   if (!canUseSupabase) return null;
@@ -41,6 +42,21 @@ function validateCheckIn(payload) {
   if (!payload?.selfieDataUrl || !payload?.selfieName) throw new Error(agency.checkInRules.validationMessage);
   if (payload?.captureMethod !== "live_camera" || !payload?.capturedAt || !payload?.checkInSessionId) {
     throw new Error(agency.checkInRules.validationMessage);
+  }
+}
+
+function toDataUrlBlob(payload = "") {
+  if (typeof payload !== "string" || !payload.startsWith("data:")) return null;
+  const [prefix, base64] = payload.split(",", 2);
+  if (!prefix || !base64) return null;
+  const mime = (prefix.match(/^data:([^;]+);base64$/)?.[1] || "image/jpeg").trim();
+  try {
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+    return new Blob([bytes], { type: mime });
+  } catch {
+    return null;
   }
 }
 
@@ -87,14 +103,43 @@ export const api = {
 
   async getAllData() {
     if (!this.useSupabaseData) return loadState();
-    const tables = ["users", "defendants", "bonds", "court_dates", "payments", "check_ins", "location_logs", "reminders", "notes"];
+    const tableMap = {
+      users: "users",
+      defendants: "defendants",
+      bonds: "bonds",
+      court_dates: "court_dates",
+      payments: "payments",
+      check_ins: "check_ins",
+      location_logs: "location_logs",
+      reminders: "reminders",
+      notes: "notes",
+      activity: "activity_logs"
+    };
     const result = {};
-    for (const table of tables) {
-      const { data, error } = await fetchTable(table);
-      if (error) throw new Error(error.message);
-      result[table] = filterAgencyRows(data);
+    for (const [resultKey, tableName] of Object.entries(tableMap)) {
+      const { data, error } = await fetchTable(tableName);
+      if (error) {
+        if (resultKey === "activity") {
+          result.activity = [];
+          continue;
+        }
+        throw new Error(error.message);
+      }
+      const rows = filterAgencyRows(data);
+      if (resultKey === "activity") {
+        result.activity = rows.map((row) => ({
+          id: row.id,
+          agency_id: row.agency_id,
+          defendant_id: row.defendant_id,
+          type: row.event_type || "general",
+          text: row.event_text || "",
+          at: row.created_at,
+          ...(row.event_meta || {})
+        }));
+      } else {
+        result[resultKey] = rows;
+      }
     }
-    result.activity = [];
     return result;
   },
 
@@ -104,6 +149,27 @@ export const api = {
     const now = new Date().toISOString();
     const entryId = `ci-${Date.now()}`;
     const locationId = `loc-${Date.now()}`;
+    let selfieStoragePath = null;
+    let selfiePublicUrl = null;
+    if (this.useSupabaseData && agency.features.enableSupabaseSelfieStorage) {
+      const supabase = await ensureSupabaseClient();
+      const blob = toDataUrlBlob(payload.selfieDataUrl);
+      if (blob) {
+        const fileExt = blob.type.includes("png") ? "png" : "jpg";
+        const filePath = `${agency.id}/${payload.defendantId}/${Date.now()}-${crypto.randomUUID()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage.from(storageBucket).upload(filePath, blob, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: blob.type
+        });
+        if (!uploadError) {
+          selfieStoragePath = filePath;
+          const { data: urlData } = supabase.storage.from(storageBucket).getPublicUrl(filePath);
+          selfiePublicUrl = urlData?.publicUrl || null;
+        }
+      }
+    }
+
     const entry = {
       id: entryId,
       agency_id: agency.id,
@@ -114,7 +180,11 @@ export const api = {
       latitude: payload.latitude ?? null,
       longitude: payload.longitude ?? null,
       selfie_name: payload.selfieName,
-      selfie_data_url: payload.selfieDataUrl
+      selfie_data_url: payload.selfieDataUrl,
+      selfie_storage_path: selfieStoragePath,
+      selfie_public_url: selfiePublicUrl,
+      capture_method: payload.captureMethod,
+      check_in_session_id: payload.checkInSessionId
     };
     const locationLog = {
       id: locationId,
@@ -133,6 +203,22 @@ export const api = {
       if (checkInError) throw new Error(checkInError.message);
       const { error: locationError } = await supabase.from("location_logs").insert(locationLog);
       if (locationError) throw new Error(locationError.message);
+      const activityEntry = {
+        agency_id: agency.id,
+        defendant_id: payload.defendantId,
+        event_type: "check_in",
+        event_text: `${payload.defendantName || "Defendant"} check-in completed from defendant portal.`,
+        event_meta: {
+          selfie_data_url: payload.selfieDataUrl,
+          selfie_public_url: selfiePublicUrl,
+          location: {
+            latitude: payload.latitude ?? null,
+            longitude: payload.longitude ?? null
+          }
+        }
+      };
+      const { error: activityError } = await supabase.from("activity_logs").insert(activityEntry);
+      if (activityError) throw new Error(activityError.message);
       return { entry, locationLog };
     }
 
@@ -146,6 +232,7 @@ export const api = {
       at: now,
       text: `${payload.defendantName || "Defendant"} check-in completed from defendant portal.`,
       selfie_data_url: payload.selfieDataUrl,
+      selfie_public_url: selfiePublicUrl,
       location: {
         latitude: payload.latitude ?? null,
         longitude: payload.longitude ?? null
@@ -156,6 +243,10 @@ export const api = {
   },
 
   saveData(state) {
+    if (this.useSupabaseData) {
+      console.warn("saveData currently writes to local seeded mode only. Supabase mutation handlers should be implemented per action.");
+      return;
+    }
     saveState(state);
   }
 };

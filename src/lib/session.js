@@ -2,7 +2,8 @@ import { getAgencyConfig } from "./agency.js";
 
 function prefixKey(name) {
   const agency = getAgencyConfig();
-  return `white-label:${agency.slug}:${name}`;
+  const env = agency.appEnv || "local";
+  return `white-label:v2:${env}:${agency.id}:${agency.slug}:${name}`;
 }
 
 export function getSession() {

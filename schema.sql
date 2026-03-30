@@ -1,7 +1,15 @@
 create extension if not exists "pgcrypto";
 
+create table if not exists public.agencies (
+  id text primary key,
+  slug text not null unique,
+  company_name text not null,
+  created_at timestamptz not null default now()
+);
+
 create table if not exists public.users (
   id uuid primary key default gen_random_uuid(),
+  agency_id text not null references public.agencies(id),
   auth_user_id uuid unique,
   role text not null check (role in ('defendant','admin')),
   full_name text not null,
@@ -14,6 +22,7 @@ create table if not exists public.users (
 
 create table if not exists public.defendants (
   id uuid primary key default gen_random_uuid(),
+  agency_id text not null references public.agencies(id),
   user_id uuid references public.users(id) on delete set null,
   full_name text not null,
   dob date,
@@ -34,6 +43,7 @@ alter table public.users
 
 create table if not exists public.bonds (
   id uuid primary key default gen_random_uuid(),
+  agency_id text not null references public.agencies(id),
   defendant_id uuid not null references public.defendants(id) on delete cascade,
   bond_number text not null unique,
   bond_amount numeric(12,2) not null,
@@ -51,6 +61,7 @@ create table if not exists public.bonds (
 
 create table if not exists public.court_dates (
   id uuid primary key default gen_random_uuid(),
+  agency_id text not null references public.agencies(id),
   defendant_id uuid not null references public.defendants(id) on delete cascade,
   court_datetime timestamptz not null,
   court_address text not null,
@@ -61,6 +72,7 @@ create table if not exists public.court_dates (
 
 create table if not exists public.payments (
   id uuid primary key default gen_random_uuid(),
+  agency_id text not null references public.agencies(id),
   defendant_id uuid not null references public.defendants(id) on delete cascade,
   amount_due numeric(12,2) not null,
   due_date date not null,
@@ -74,6 +86,7 @@ create table if not exists public.payments (
 
 create table if not exists public.check_ins (
   id uuid primary key default gen_random_uuid(),
+  agency_id text not null references public.agencies(id),
   defendant_id uuid not null references public.defendants(id) on delete cascade,
   checked_in_at timestamptz not null default now(),
   source text not null,
@@ -82,11 +95,16 @@ create table if not exists public.check_ins (
   longitude numeric(9,6),
   selfie_name text not null,
   selfie_data_url text not null,
+  selfie_storage_path text,
+  selfie_public_url text,
+  capture_method text,
+  check_in_session_id text,
   created_at timestamptz not null default now()
 );
 
 create table if not exists public.location_logs (
   id uuid primary key default gen_random_uuid(),
+  agency_id text not null references public.agencies(id),
   defendant_id uuid not null references public.defendants(id) on delete cascade,
   check_in_id uuid references public.check_ins(id) on delete set null,
   captured_at timestamptz not null default now(),
@@ -98,6 +116,7 @@ create table if not exists public.location_logs (
 
 create table if not exists public.reminders (
   id uuid primary key default gen_random_uuid(),
+  agency_id text not null references public.agencies(id),
   defendant_id uuid not null references public.defendants(id) on delete cascade,
   type text not null,
   title text not null,
@@ -111,9 +130,20 @@ create table if not exists public.reminders (
 
 create table if not exists public.notes (
   id uuid primary key default gen_random_uuid(),
+  agency_id text not null references public.agencies(id),
   defendant_id uuid not null references public.defendants(id) on delete cascade,
   author_name text not null,
   body text not null,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.activity_logs (
+  id uuid primary key default gen_random_uuid(),
+  agency_id text not null references public.agencies(id),
+  defendant_id uuid references public.defendants(id) on delete set null,
+  event_type text not null default 'general',
+  event_text text not null,
+  event_meta jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
 

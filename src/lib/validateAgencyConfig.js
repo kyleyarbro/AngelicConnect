@@ -38,7 +38,15 @@ export function validateAgencyConfig(config) {
     if (typeof config.theme?.[key] !== "string" || !config.theme[key].trim()) errors.push(`Missing theme color: theme.${key}`);
   }
 
-  const featureKeys = ["enableReminders", "enablePayments", "enableLiveCheckInCamera", "enableSupabaseAuth", "enableSupabaseData", "enforceAgencyScopeInQueries"];
+  const featureKeys = [
+    "enableReminders",
+    "enablePayments",
+    "enableLiveCheckInCamera",
+    "enableSupabaseAuth",
+    "enableSupabaseData",
+    "enforceAgencyScopeInQueries",
+    "enableSupabaseSelfieStorage"
+  ];
   for (const key of featureKeys) {
     if (typeof config.features?.[key] !== "boolean") errors.push(`Missing feature flag: features.${key}`);
   }

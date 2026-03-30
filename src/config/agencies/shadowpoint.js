@@ -46,7 +46,8 @@ const shadowpointAgency = {
     enableLiveCheckInCamera: true,
     enableSupabaseAuth: false,
     enableSupabaseData: false,
-    enforceAgencyScopeInQueries: false
+    enforceAgencyScopeInQueries: true,
+    enableSupabaseSelfieStorage: false
   },
   checkInRules: {
     requireSelfie: true,
