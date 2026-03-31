@@ -34,7 +34,12 @@ This repo is a white-label, config-driven bail agency platform using static HTML
 /supabase
   /migrations
   /policies
+
+/docs
+  /business
 ```
+
+Internal operator docs for pricing, onboarding, support boundaries, and launch workflow live in [docs/business](/c:/Users/Kyarb/AngelicConnect/docs/business/).
 
 ## Supported Agencies
 
