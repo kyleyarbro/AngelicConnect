@@ -1,8 +1,18 @@
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="512" height="512" rx="120" fill="#F7FBFB"/>
-  <rect x="18" y="18" width="476" height="476" rx="102" stroke="#8AB9C2" stroke-width="10"/>
-  <path d="M136 348L233 134H279L376 348H330L307 292H205L182 348H136Z" fill="#17323A"/>
-  <path d="M215 243H297L256 164L215 243Z" fill="#F7FBFB"/>
-  <rect x="212" y="267" width="88" height="28" fill="#1D6B73"/>
-  <path d="M138 178C170 145 213 128 256 128C299 128 342 145 374 178" stroke="#1D6B73" stroke-width="24" stroke-linecap="round"/>
+  <defs>
+    <linearGradient id="iconBg" x1="56" y1="32" x2="452" y2="492" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1A2A43"/>
+      <stop offset="1" stop-color="#0A1321"/>
+    </linearGradient>
+    <linearGradient id="iconAccent" x1="256" y1="96" x2="256" y2="382" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#67CBFF"/>
+      <stop offset="1" stop-color="#2F9DFF"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="118" fill="url(#iconBg)"/>
+  <rect x="18" y="18" width="476" height="476" rx="100" stroke="#334F72" stroke-width="10"/>
+  <path d="M136 348L233 134H279L376 348H330L307 292H205L182 348H136Z" fill="#ECF4FF"/>
+  <path d="M215 243H297L256 164L215 243Z" fill="#101A2A"/>
+  <rect x="212" y="267" width="88" height="28" fill="url(#iconAccent)"/>
+  <path d="M138 178C170 145 213 128 256 128C299 128 342 145 374 178" stroke="url(#iconAccent)" stroke-width="24" stroke-linecap="round"/>
 </svg>

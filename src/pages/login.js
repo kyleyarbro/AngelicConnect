@@ -78,7 +78,7 @@ form.addEventListener("submit", async (event) => {
     const user = await api.login(email, password, role);
     saveSession({ role: user.role, userId: user.id, defendantId: user.defendant_id || null, agencyId: agency.id });
     status.textContent = "Access granted.";
-    window.location.href = user.role === "admin" ? "/admin.html" : "/defendant.html";
+    window.location.href = user.role === "admin" ? "/admin/index.html" : "/defendant/index.html";
   } catch (error) {
     status.textContent = error.message;
   }

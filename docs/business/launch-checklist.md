@@ -36,14 +36,19 @@ Use this before every agency go-live.
 - Live selfie check-in works end-to-end.
 - Activity log and selfie preview behavior verified.
 - Reminders/payments/court date sections render correctly.
-- “Need help” contact action dials correct agency number.
+- "Need help" contact action dials correct agency number.
 
 ## Release Safety
 - No broken asset paths (network tab and console clean).
 - No 404 for manifest/icons/core scripts.
 - Critical pages tested:
   - `/login.html`
+  - `/admin/index.html`
+  - `/defendant/index.html`
+  - `/marketing/landing.html`
+- Legacy wrappers still resolve:
   - `/admin.html`
   - `/defendant.html`
+  - `/landing.html`
 - Rollback plan prepared (previous known-good deploy).
 - Agency sign-off captured before public go-live.

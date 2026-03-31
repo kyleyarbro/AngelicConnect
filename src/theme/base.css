@@ -975,3 +975,95 @@ label {
     padding: 2.3rem;
   }
 }
+
+:root[data-agency="shadowpoint"] body {
+  color: var(--brand-text);
+  background:
+    radial-gradient(circle at 14% -4%, rgba(47, 157, 255, 0.2), rgba(47, 157, 255, 0) 34%),
+    radial-gradient(circle at 92% 6%, rgba(95, 129, 167, 0.15), rgba(95, 129, 167, 0) 38%),
+    linear-gradient(180deg, #060b12 0%, #090f18 52%, #060b12 100%);
+}
+
+:root[data-agency="shadowpoint"] .card,
+:root[data-agency="shadowpoint"] .item,
+:root[data-agency="shadowpoint"] .metric,
+:root[data-agency="shadowpoint"] .notice,
+:root[data-agency="shadowpoint"] .help-strip,
+:root[data-agency="shadowpoint"] .selfie-preview-wrap {
+  background: linear-gradient(180deg, rgba(16, 26, 42, 0.96), rgba(12, 20, 32, 0.98));
+  border-color: rgba(42, 58, 86, 0.9);
+  color: var(--brand-text);
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+:root[data-agency="shadowpoint"] .muted,
+:root[data-agency="shadowpoint"] label,
+:root[data-agency="shadowpoint"] .brand-footer,
+:root[data-agency="shadowpoint"] .activity-time,
+:root[data-agency="shadowpoint"] .activity-location,
+:root[data-agency="shadowpoint"] .activity-missing-selfie {
+  color: var(--brand-muted);
+}
+
+:root[data-agency="shadowpoint"] .topbar,
+:root[data-agency="shadowpoint"] .bottom-nav {
+  border-color: rgba(42, 58, 86, 0.92);
+  background: rgba(8, 13, 22, 0.94);
+}
+
+:root[data-agency="shadowpoint"] .bottom-nav button {
+  color: color-mix(in srgb, var(--brand-muted) 88%, #c8d5ea 12%);
+}
+
+:root[data-agency="shadowpoint"] .bottom-nav button.active {
+  color: var(--brand-text);
+  background: linear-gradient(180deg, rgba(24, 39, 60, 0.98), rgba(16, 29, 46, 0.98));
+  box-shadow: inset 0 0 0 1px rgba(47, 157, 255, 0.34);
+}
+
+:root[data-agency="shadowpoint"] input,
+:root[data-agency="shadowpoint"] select,
+:root[data-agency="shadowpoint"] textarea,
+:root[data-agency="shadowpoint"] .table thead {
+  background: rgba(13, 23, 36, 0.96);
+  color: var(--brand-text);
+  border-color: rgba(42, 58, 86, 0.9);
+}
+
+:root[data-agency="shadowpoint"] .btn {
+  background: linear-gradient(180deg, rgba(21, 35, 54, 0.98), rgba(14, 24, 38, 0.98));
+  color: #dcecff;
+  border-color: rgba(56, 81, 116, 0.9);
+}
+
+:root[data-agency="shadowpoint"] .btn:hover {
+  border-color: rgba(63, 164, 255, 0.62);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.34);
+}
+
+:root[data-agency="shadowpoint"] .btn-primary {
+  color: #f4faff;
+  border-color: rgba(56, 173, 255, 0.9);
+  background: linear-gradient(180deg, rgba(47, 157, 255, 0.98), rgba(15, 127, 224, 0.98));
+  box-shadow: 0 14px 28px rgba(47, 157, 255, 0.28);
+}
+
+:root[data-agency="shadowpoint"] .badge.ok {
+  color: #a7f0c9;
+  border-color: rgba(62, 188, 133, 0.35);
+  background: rgba(62, 188, 133, 0.14);
+}
+
+:root[data-agency="shadowpoint"] .badge.warn {
+  color: #ffd49a;
+  border-color: rgba(240, 169, 76, 0.4);
+  background: rgba(240, 169, 76, 0.16);
+}
+
+:root[data-agency="shadowpoint"] .badge.danger {
+  color: #ffb6b6;
+  border-color: rgba(255, 111, 111, 0.42);
+  background: rgba(255, 111, 111, 0.17);
+}

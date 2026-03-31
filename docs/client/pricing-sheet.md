@@ -1,7 +1,7 @@
 # ShadowPoint Systems for Bail Agencies
 ## Simple. Reliable. Built for Bail Agents.
 
-For client-facing presentation, use [pricing-sheet.html](/c:/Users/Kyarb/AngelicConnect/docs/client/pricing-sheet.html).
+For client-facing presentation, use [pricing.html](/c:/Users/Kyarb/AngelicConnect/marketing/pricing.html).
 
 ShadowPoint Systems helps bail agencies stay connected with defendants through a mobile check-in app and a clear admin dashboard.
 

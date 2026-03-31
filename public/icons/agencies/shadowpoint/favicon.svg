@@ -1,7 +1,1 @@
-<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="64" height="64" rx="16" fill="#F7FBFB"/>
-  <path d="M17 45L29 18H35L47 45H41L38 38H26L23 45H17Z" fill="#17323A"/>
-  <path d="M27 31H37L32 22L27 31Z" fill="#F7FBFB"/>
-  <rect x="26" y="34" width="12" height="4" fill="#1D6B73"/>
-  <path d="M17 24C21 19 26 17 32 17C38 17 43 19 47 24" stroke="#1D6B73" stroke-width="3.5" stroke-linecap="round"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1A2A43"/><stop offset="1" stop-color="#0A1321"/></linearGradient></defs><rect width="64" height="64" rx="14" fill="url(#b)"/><rect x="3" y="3" width="58" height="58" rx="12" fill="none" stroke="#334F72" stroke-width="2"/><path d="M17 44L29 17H35L47 44H41L38 37H26L23 44H17Z" fill="#ECF4FF"/><rect x="27" y="31" width="10" height="3" fill="#2F9DFF"/><path d="M17 23C21 19 26 17 32 17C38 17 43 19 47 23" fill="none" stroke="#67CBFF" stroke-width="3" stroke-linecap="round"/></svg>

@@ -12,14 +12,29 @@ This repo is a white-label, config-driven bail agency platform using static HTML
 ## Project Structure
 
 ```text
+/admin
+  index.html
+  admin.js
+
+/defendant
+  index.html
+  defendant.js
+
+/marketing
+  landing.html
+  pricing.html
+
+/shared
+  README.md
+
 /src
   /assets/branding/{agency}/
   /config/agencies/
-  /theme/
+  /theme/                 (shared theme tokens + app styles)
   /types/
   /lib/
-  /components/
-  /pages/
+  /components/            (shared UI helpers)
+  /pages/                 (shared app logic modules)
 
 /public
   /icons/agencies/{agency}/
@@ -44,7 +59,7 @@ Internal operator docs for pricing, onboarding, support boundaries, and launch w
 ## Supported Agencies
 
 - `angelic`
-- `shadowpoint`
+- `shadowpoint` (ShadowPoint Bail)
 - `template`
 
 ## Environment Variables
@@ -71,6 +86,31 @@ python -m http.server
 3. Open:
 
 - `http://localhost:8000/login.html`
+- `http://localhost:8000/admin/index.html`
+- `http://localhost:8000/defendant/index.html`
+- `http://localhost:8000/marketing/landing.html`
+- `http://localhost:8000/marketing/pricing.html`
+
+Quick agency switch options:
+
+- Query param (fastest): `http://localhost:8000/login.html?agency=shadowpoint`
+- Env/script mode: set `VITE_AGENCY_SLUG=shadowpoint` before running branding scripts
+- Query-param selection is persisted in localStorage so admin/defendant pages stay on the selected agency after login redirects.
+- To reset to default agency, open `http://localhost:8000/login.html?agency=angelic` (or clear localStorage).
+
+## App Surfaces
+
+- Defendant app surface:
+  - Entry: `/defendant/index.html`
+  - Runtime module: `/defendant/defendant.js` -> shared logic in `/src/pages/defendant.js`
+- Admin/staff app surface:
+  - Entry: `/admin/index.html`
+  - Runtime module: `/admin/admin.js` -> shared logic in `/src/pages/admin.js`
+- Marketing surface:
+  - Landing: `/marketing/landing.html`
+  - Pricing: `/marketing/pricing.html`
+
+Backward-compatible wrappers are kept at root (`/admin.html`, `/defendant.html`, `/landing.html`) and redirect to the new surface paths.
 
 ## Adding A New Agency
 
@@ -100,6 +140,13 @@ Each agency config covers:
 - manifest colors and description
 
 Shared runtime loading is handled in [agency.js](/c:/Users/Kyarb/AngelicConnect/src/lib/agency.js). Theme tokens are built in [buildTheme.js](/c:/Users/Kyarb/AngelicConnect/src/theme/buildTheme.js) and applied in [applyTheme.js](/c:/Users/Kyarb/AngelicConnect/src/theme/applyTheme.js).
+
+ShadowPoint Bail onboarding paths:
+
+- Agency config: [shadowpoint.js](/c:/Users/Kyarb/AngelicConnect/src/config/agencies/shadowpoint.js)
+- Branding source assets: [logo-mark.svg](/c:/Users/Kyarb/AngelicConnect/src/assets/branding/shadowpoint/logo-mark.svg), [wordmark.svg](/c:/Users/Kyarb/AngelicConnect/src/assets/branding/shadowpoint/wordmark.svg)
+- App icon bundle: [public/icons/agencies/shadowpoint](/c:/Users/Kyarb/AngelicConnect/public/icons/agencies/shadowpoint/)
+- Contact owner values for ShadowPoint Bail are configured in the `contact` block in [shadowpoint.js](/c:/Users/Kyarb/AngelicConnect/src/config/agencies/shadowpoint.js).
 
 ## Manifest / Icon Workflow
 
