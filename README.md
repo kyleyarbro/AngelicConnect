@@ -149,6 +149,8 @@ To deploy a branded version:
 
 Each deployment should use one agency slug at a time so the generated manifest/icons match the chosen brand.
 
+For Vercel + Supabase multi-agency hosting, see [DEPLOYMENT.md](/c:/Users/Kyarb/AngelicConnect/DEPLOYMENT.md).
+
 ## Supabase Multi-Agency Readiness
 
 Current status:
