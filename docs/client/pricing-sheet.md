@@ -1,11 +1,11 @@
-# CaseConnect for Bail Agencies
+# ShadowPoint Systems for Bail Agencies
 ## Simple. Reliable. Built for Bail Agents.
 
-CaseConnect helps bail agencies stay connected with defendants through a mobile check-in app and a clear admin dashboard.
+ShadowPoint Systems helps bail agencies stay connected with defendants through a mobile check-in app and a clear admin dashboard.
 
 ## What This Is
 
-CaseConnect is a mobile-friendly platform built for day-to-day bail operations:
+ShadowPoint Systems is a mobile-friendly platform built for day-to-day bail operations:
 - Defendants get a simple app experience for check-ins and reminders.
 - Agents get an admin dashboard to track activity and status.
 - Your team gets better visibility without adding extra manual work.
@@ -51,8 +51,8 @@ CaseConnect is a mobile-friendly platform built for day-to-day bail operations:
 
 ## Investment Guide
 
-- **Setup Fee (one-time):** `$X – $X,XXX` depending on branding, configuration, and launch scope
-- **Monthly Service Fee:** `$XXX – $XXX` based on support level and enabled features
+- **Setup Fee (one-time):** `$X - $X,XXX` depending on branding, configuration, and launch scope
+- **Monthly Service Fee:** `$XXX - $XXX` based on support level and enabled features
 
 Final pricing is based on your agency size, workflow needs, and selected tier.
 
@@ -81,9 +81,9 @@ Final pricing is based on your agency size, workflow needs, and selected tier.
 
 ## Ready to Get Started?
 
-Let’s set up a quick call to review your agency goals and recommend the right tier.
+Let's set up a quick call to review your agency goals and recommend the right tier.
 
-- **Contact:** `[Your Name / Team]`
-- **Email:** `[your-email@example.com]`
-- **Phone:** `[your-phone-number]`
-- **Schedule:** `[booking-link]`
+- **Contact:** `ShadowPoint Systems`
+- **Email:** `hello@shadowpointsystems.com` (replace with final sales inbox)
+- **Phone:** `(919) 555-0148` (replace with final sales line)
+- **Schedule:** `[your-booking-link]`

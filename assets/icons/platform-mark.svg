@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="ShadowPoint Platform mark">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f6e9d7"/>
+      <stop offset="100%" stop-color="#b88746"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="112" height="112" rx="28" fill="url(#bg)"/>
+  <path d="M64 30c16 0 29 13 29 29 0 21-19 35-29 39-10-4-29-18-29-39 0-16 13-29 29-29Z" fill="#fff9f2"/>
+  <path d="M64 44c8 0 15 7 15 15 0 11-10 19-15 21-5-2-15-10-15-21 0-8 7-15 15-15Z" fill="#b88746"/>
+  <circle cx="64" cy="44" r="6" fill="#fff9f2"/>
+</svg>
