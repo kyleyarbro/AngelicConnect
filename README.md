@@ -173,12 +173,39 @@ Manual Supabase steps still required:
 1. Apply migration files in order.
 2. Backfill `agency_id` for legacy rows.
 3. Set `agency_id` columns to `NOT NULL` where backfill is complete.
-4. Add `agency_id` / `app_role` (and optionally `defendant_id`) claims to JWT/session context.
-5. Run policy script and validate access by role + agency.
-6. Create and secure the `checkin-selfies` storage bucket before enabling `enableSupabaseSelfieStorage`.
+4. Add JWT claims for `agency_id`, `app_role`, and `defendant_id` (UUID for defendant users).
+5. Run [agency_rls.sql](/c:/Users/Kyarb/AngelicConnect/supabase/policies/agency_rls.sql) in the Supabase SQL editor.
+6. Validate access with real user sessions:
+   - Admin: full CRUD inside own agency only
+   - Defendant: own profile/case/check-ins/payments/reminders/timeline only
+   - Defendant: no access to staff notes
+7. Create and secure the `checkin-selfies` storage bucket before enabling `enableSupabaseSelfieStorage`.
+8. After validation in staging, optionally add `FORCE ROW LEVEL SECURITY` on agency-owned tables.
+
+### RLS Claim Model (Expected)
+
+- `agency_id` claim: required on authenticated JWTs for agency row separation.
+- `app_role` claim: expected values are `admin` or `defendant` (supports `agency_admin` and `owner` aliases as admin).
+- `defendant_id` claim: required for defendant-scoped policies and must map to `public.defendants.id`.
+- `users.auth_user_id`: should match `auth.uid()` for self-user reads.
+
+### Table Coverage in `agency_rls.sql`
+
+- Agency separation + role-aware policy scaffold is included for:
+  - `agencies`
+  - `users`
+  - `defendants`
+  - `bonds`
+  - `court_dates`
+  - `payments`
+  - `check_ins`
+  - `location_logs`
+  - `reminders`
+  - `notes`
+  - `activity_logs`
 
 Security / scaling notes:
 
-- RLS policies are prepared but still depend on real JWT claim wiring.
+- RLS policy SQL is now table-specific and role-aware, but it still depends on real JWT claim wiring and tested Supabase Auth sessions.
 - Admin write flows outside `submitCheckIn` are still local-first and need dedicated Supabase mutation handlers before production multi-tenant launch.
 - Check-in selfies still store `selfie_data_url` inline for compatibility; this is not ideal at scale. Use `enableSupabaseSelfieStorage` once storage bucket/policies are configured.
